@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.GridLayoutManager
 import com.example.saleapp.core.base.BaseFragment
 import com.example.saleapp.core.utils.UiState
 import com.example.saleapp.core.utils.showToast
@@ -18,9 +19,23 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
         FragmentHomeBinding::inflate
 
     private val viewModel: HomeViewModel by viewModels()
+    private lateinit var productAdapter: ProductAdapter
 
     override fun setupViews() {
+        setupRecyclerView()
         viewModel.loadProducts()
+    }
+
+    private fun setupRecyclerView() {
+        productAdapter = ProductAdapter { product ->
+            // Handle product click
+            showToast("Clicked on ${product.getNameValue()}")
+        }
+
+        binding.rvProducts.apply {
+            adapter = productAdapter
+            layoutManager = GridLayoutManager(requireContext(), 2)
+        }
     }
 
     override fun observeData() {
@@ -30,7 +45,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
                     is UiState.Loading -> showLoading(true)
                     is UiState.Success -> {
                         showLoading(false)
-                        // Update UI with products
+                        productAdapter.updateProducts(state.data)
                     }
                     is UiState.Error -> {
                         showLoading(false)
@@ -43,7 +58,11 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
     }
 
     private fun showLoading(show: Boolean) {
-        // Toggle progress bar visibility
+        binding.progressBar.visibility = if (show) {
+            android.view.View.VISIBLE
+        } else {
+            android.view.View.GONE
+        }
     }
 }
 

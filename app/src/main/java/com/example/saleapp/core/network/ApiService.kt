@@ -6,8 +6,10 @@ import com.example.saleapp.data.model.request.LoginRequest
 import com.example.saleapp.data.model.request.RegisterRequest
 import com.example.saleapp.data.model.response.BaseResponse
 import com.example.saleapp.data.model.response.CartResponse
+import com.example.saleapp.data.model.response.LoginResponse
 import com.example.saleapp.data.model.response.OrderResponse
 import com.example.saleapp.data.model.response.ProductResponse
+import com.example.saleapp.data.model.response.RegisterResponse
 import com.example.saleapp.data.model.response.UserResponse
 import retrofit2.Response
 import retrofit2.http.*
@@ -15,16 +17,19 @@ import retrofit2.http.*
 interface ApiService {
 
     // Auth
-    @POST("auth/login")
-    suspend fun login(@Body request: LoginRequest): Response<BaseResponse<UserResponse>>
+    @POST("Auth/login")
+    suspend fun login(@Body request: LoginRequest): Response<LoginResponse>
 
-    @POST("auth/register")
+    @POST("api/Auth/sign-up")
     suspend fun register(@Body request: RegisterRequest): Response<BaseResponse<UserResponse>>
 
     @POST("auth/logout")
     suspend fun logout(): Response<BaseResponse<Unit>>
 
     // Products
+    @GET("Products/getall")
+    suspend fun getAllProducts(): Response<List<ProductResponse>>
+
     @GET("products")
     suspend fun getProducts(
         @Query("page") page: Int = 0,

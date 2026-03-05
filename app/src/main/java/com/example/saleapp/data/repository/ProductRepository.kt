@@ -11,6 +11,24 @@ class ProductRepository @Inject constructor(
     private val apiService: ApiService
 ) {
 
+    suspend fun getAllProducts(): NetworkResult<List<ProductResponse>> {
+        return try {
+            val response = apiService.getAllProducts()
+            if (response.isSuccessful) {
+                val data = response.body()
+                if (data != null) {
+                    NetworkResult.Success(data)
+                } else {
+                    NetworkResult.Error(response.code(), "No products found")
+                }
+            } else {
+                NetworkResult.Error(response.code(), response.message())
+            }
+        } catch (e: Exception) {
+            NetworkResult.Exception(e)
+        }
+    }
+
     suspend fun getProducts(
         page: Int = 0,
         size: Int = 20,
@@ -55,4 +73,3 @@ class ProductRepository @Inject constructor(
         }
     }
 }
-

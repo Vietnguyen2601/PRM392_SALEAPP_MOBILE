@@ -21,9 +21,14 @@ class LoginActivity : BaseActivity<ActivityLoginBinding>() {
 
     override fun setupViews() {
         binding.btnLogin.setOnClickListener {
-            val email = binding.etEmail.text.toString().trim()
+            val username = binding.etUsername.text.toString().trim()
             val password = binding.etPassword.text.toString().trim()
-            viewModel.login(email, password)
+            viewModel.login(username, password)
+        }
+
+        binding.tvRegister.setOnClickListener {
+            startActivity(Intent(this, com.example.saleapp.ui.auth.register.RegisterActivity::class.java))
+            finish()
         }
     }
 

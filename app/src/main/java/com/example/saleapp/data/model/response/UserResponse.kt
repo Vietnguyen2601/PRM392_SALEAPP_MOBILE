@@ -3,12 +3,11 @@ package com.example.saleapp.data.model.response
 import com.google.gson.annotations.SerializedName
 
 data class UserResponse(
-    @SerializedName("id") val id: Long,
-    @SerializedName("name") val name: String,
+    @SerializedName("userId") val userId: Long,
+    @SerializedName("username") val username: String,
     @SerializedName("email") val email: String,
-    @SerializedName("phone") val phone: String?,
-    @SerializedName("avatar") val avatar: String?,
-    @SerializedName("token") val token: String?,
-    @SerializedName("role") val role: String?
+    @SerializedName("phoneNumber") val phoneNumber: String?,
+    @SerializedName("address") val address: String?,
+    @SerializedName("isActive") val isActive: Boolean
 )
 

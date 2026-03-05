@@ -15,15 +15,15 @@ class AuthRepository @Inject constructor(
     private val preferenceManager: PreferenceManager
 ) {
 
-    suspend fun login(email: String, password: String): NetworkResult<UserResponse> {
+    suspend fun login(username: String, password: String): NetworkResult<UserResponse> {
         return try {
-            val response = apiService.login(LoginRequest(email, password))
+            val response = apiService.login(LoginRequest(username, password))
             if (response.isSuccessful) {
                 val body = response.body()
-                val user = body?.data
+                val user = body?.user
                 if (body?.success == true && user != null) {
-                    user.token?.let { preferenceManager.saveAuthToken(it) }
-                    preferenceManager.saveUserId(user.id.toString())
+                    body.token?.let { preferenceManager.saveAuthToken(it) }
+                    preferenceManager.saveUserId(user.userId.toString())
                     preferenceManager.saveUserEmail(user.email)
                     preferenceManager.setLoggedIn(true)
                     NetworkResult.Success(user)
@@ -38,9 +38,9 @@ class AuthRepository @Inject constructor(
         }
     }
 
-    suspend fun register(name: String, email: String, password: String, phone: String?): NetworkResult<UserResponse> {
+    suspend fun register(username: String, email: String, password: String, phoneNumber: String?, address: String?): NetworkResult<UserResponse> {
         return try {
-            val response = apiService.register(RegisterRequest(name, email, password, phone))
+            val response = apiService.register(RegisterRequest(username, password, email, phoneNumber, address))
             if (response.isSuccessful) {
                 val body = response.body()
                 val user = body?.data
@@ -74,4 +74,3 @@ class AuthRepository @Inject constructor(
 
     fun isLoggedIn() = preferenceManager.isLoggedIn()
 }
-
