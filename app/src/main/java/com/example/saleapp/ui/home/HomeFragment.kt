@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.saleapp.core.base.BaseFragment
 import com.example.saleapp.core.utils.UiState
@@ -28,8 +29,10 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
 
     private fun setupRecyclerView() {
         productAdapter = ProductAdapter { product ->
-            // Handle product click
-            showToast("Clicked on ${product.getNameValue()}")
+            // Navigate to product detail
+            val productId = product.productId ?: product.id ?: return@ProductAdapter
+            val action = HomeFragmentDirections.actionHomeFragmentToProductDetailFragment(productId)
+            findNavController().navigate(action)
         }
 
         binding.rvProducts.apply {

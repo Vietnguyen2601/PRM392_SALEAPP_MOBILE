@@ -58,12 +58,11 @@ class ProductRepository @Inject constructor(
         return try {
             val response = apiService.getProductById(id)
             if (response.isSuccessful) {
-                val body = response.body()
-                val data = body?.data
-                if (body?.success == true && data != null) {
+                val data = response.body()
+                if (data != null) {
                     NetworkResult.Success(data)
                 } else {
-                    NetworkResult.Error(response.code(), body?.message ?: "Product not found")
+                    NetworkResult.Error(response.code(), "Product not found")
                 }
             } else {
                 NetworkResult.Error(response.code(), response.message())

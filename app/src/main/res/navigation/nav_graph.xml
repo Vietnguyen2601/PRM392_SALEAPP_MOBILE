@@ -7,7 +7,20 @@
     <fragment
         android:id="@+id/homeFragment"
         android:name="com.example.saleapp.ui.home.HomeFragment"
-        android:label="Home" />
+        android:label="Home">
+        <action
+            android:id="@+id/action_homeFragment_to_productDetailFragment"
+            app:destination="@id/productDetailFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/productDetailFragment"
+        android:name="com.example.saleapp.ui.home.ProductDetailFragment"
+        android:label="Product Detail">
+        <argument
+            android:name="productId"
+            app:argType="long" />
+    </fragment>
 
     <fragment
         android:id="@+id/cartFragment"

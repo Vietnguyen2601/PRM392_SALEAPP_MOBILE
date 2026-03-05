@@ -20,7 +20,10 @@ data class ProductResponse(
     @SerializedName("averageRating") val averageRating: Float? = null,
     @SerializedName("reviewCount") val reviewCount: Int?,
     @SerializedName("totalReviews") val totalReviews: Int? = null,
-    @SerializedName("totalSold") val totalSold: Int? = null
+    @SerializedName("totalSold") val totalSold: Int? = null,
+    @SerializedName("technicalSpecifications") val technicalSpecifications: String? = null,
+    @SerializedName("createdAt") val createdAt: String? = null,
+    @SerializedName("feedbacks") val feedbacks: List<Any>? = null
 ) {
     // Helper function to get the correct ID
     fun getIdValue(): Long = productId ?: id ?: 0L

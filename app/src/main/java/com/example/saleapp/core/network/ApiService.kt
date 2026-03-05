@@ -39,8 +39,8 @@ interface ApiService {
         @Query("sort") sort: String? = null
     ): Response<BaseResponse<List<ProductResponse>>>
 
-    @GET("products/{id}")
-    suspend fun getProductById(@Path("id") id: Long): Response<BaseResponse<ProductResponse>>
+    @GET("Products/{id}")
+    suspend fun getProductById(@Path("id") id: Long): Response<ProductResponse>
 
     // Cart
     @GET("cart")
