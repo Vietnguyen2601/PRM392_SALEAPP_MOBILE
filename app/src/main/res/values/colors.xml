@@ -7,4 +7,13 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="gray_100">#FFF5F5F5</color>
+    <color name="gray_200">#FFEEEEEE</color>
+    <color name="gray_400">#FFBDBDBD</color>
+    <color name="gray_600">#FF757575</color>
+    <color name="orange_rating">#FFFF9800</color>
+    <color name="price_color">#FF6200EE</color>
+    <color name="chip_selected_bg">#FF6200EE</color>
+    <color name="chip_unselected_bg">#FFEEEEEE</color>
+    <color name="filter_active_bg">#FFEDE7F6</color>
 </resources>

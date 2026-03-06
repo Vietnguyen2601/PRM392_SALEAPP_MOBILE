@@ -5,7 +5,9 @@ import com.example.saleapp.core.network.NetworkResult
 import com.example.saleapp.core.utils.PreferenceManager
 import com.example.saleapp.data.model.request.LoginRequest
 import com.example.saleapp.data.model.request.RegisterRequest
+import com.example.saleapp.data.model.response.LoginResponse
 import com.example.saleapp.data.model.response.UserResponse
+import com.google.gson.Gson
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -31,7 +33,15 @@ class AuthRepository @Inject constructor(
                     NetworkResult.Error(response.code(), body?.message ?: "Login failed")
                 }
             } else {
-                NetworkResult.Error(response.code(), response.message())
+                // Parse the error body to get the real message from the API (e.g. "Invalid username or password")
+                val errorMessage = try {
+                    val errorJson = response.errorBody()?.string()
+                    val errorBody = Gson().fromJson(errorJson, LoginResponse::class.java)
+                    errorBody?.message?.takeIf { it.isNotBlank() }
+                } catch (e: Exception) {
+                    null
+                } ?: response.message()
+                NetworkResult.Error(response.code(), errorMessage)
             }
         } catch (e: Exception) {
             NetworkResult.Exception(e)
