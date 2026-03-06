@@ -23,17 +23,39 @@ class ProductDetailFragment : BaseFragment<FragmentProductDetailBinding>() {
 
     private val viewModel: ProductDetailViewModel by viewModels()
     private val args: ProductDetailFragmentArgs by navArgs()
+    private var currentProductId: Long = 0
+    private var currentQuantity: Int = 1
 
     override fun setupViews() {
         val productId: Long = args.productId
+        currentProductId = productId
         viewModel.loadProductDetails(productId)
 
         binding.btnBack.setOnClickListener {
             findNavController().popBackStack()
         }
 
+        setupQuantitySelector()
+
         binding.btnAddToCart.setOnClickListener {
-            showToast("Added to cart!")
+            android.util.Log.d("ProductDetailFragment", "Add to cart clicked, productId=$currentProductId, quantity=$currentQuantity")
+            viewModel.addToCart(currentProductId, currentQuantity)
+        }
+    }
+
+    private fun setupQuantitySelector() {
+        binding.btnDecreaseQuantity.setOnClickListener {
+            if (currentQuantity > 1) {
+                currentQuantity--
+                binding.tvQuantity.text = currentQuantity.toString()
+            }
+        }
+
+        binding.btnIncreaseQuantity.setOnClickListener {
+            if (currentQuantity < 99) { // Max 99 items
+                currentQuantity++
+                binding.tvQuantity.text = currentQuantity.toString()
+            }
         }
     }
 
@@ -51,6 +73,37 @@ class ProductDetailFragment : BaseFragment<FragmentProductDetailBinding>() {
                         showToast(state.message)
                     }
                     else -> showLoading(false)
+                }
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.addToCartState.collect { state ->
+                when (state) {
+                    is UiState.Loading -> {
+                        binding.btnAddToCart.isEnabled = false
+                        binding.btnAddToCart.text = "Adding..."
+                    }
+                    is UiState.Success -> {
+                        binding.btnAddToCart.isEnabled = true
+                        binding.btnAddToCart.text = "Add to Cart"
+                        val totalItems = state.data.getTotalItems()
+                        android.util.Log.d("ProductDetailFragment", "Added to cart successfully, total items: $totalItems")
+                        showToast("Added $currentQuantity item(s) to cart! Total: $totalItems")
+                        // Reset quantity to 1 after successful add
+                        currentQuantity = 1
+                        binding.tvQuantity.text = "1"
+                    }
+                    is UiState.Error -> {
+                        binding.btnAddToCart.isEnabled = true
+                        binding.btnAddToCart.text = "Add to Cart"
+                        android.util.Log.e("ProductDetailFragment", "Failed to add to cart: ${state.message}")
+                        showToast("Failed: ${state.message}")
+                    }
+                    else -> {
+                        binding.btnAddToCart.isEnabled = true
+                        binding.btnAddToCart.text = "Add to Cart"
+                    }
                 }
             }
         }

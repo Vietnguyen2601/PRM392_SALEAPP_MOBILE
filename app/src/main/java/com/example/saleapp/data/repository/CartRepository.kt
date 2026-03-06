@@ -16,12 +16,11 @@ class CartRepository @Inject constructor(
         return try {
             val response = apiService.getCart()
             if (response.isSuccessful) {
-                val body = response.body()
-                val data = body?.data
-                if (body?.success == true && data != null) {
+                val data = response.body()
+                if (data != null) {
                     NetworkResult.Success(data)
                 } else {
-                    NetworkResult.Error(response.code(), body?.message ?: "Failed to fetch cart")
+                    NetworkResult.Error(response.code(), "Cart data is null")
                 }
             } else {
                 NetworkResult.Error(response.code(), response.message())
@@ -33,19 +32,29 @@ class CartRepository @Inject constructor(
 
     suspend fun addToCart(productId: Long, quantity: Int): NetworkResult<CartResponse> {
         return try {
+            android.util.Log.d("CartRepository", "Adding to cart: productId=$productId, quantity=$quantity")
             val response = apiService.addToCart(AddToCartRequest(productId, quantity))
+            android.util.Log.d("CartRepository", "Response code: ${response.code()}")
+            android.util.Log.d("CartRepository", "Response isSuccessful: ${response.isSuccessful}")
+            
             if (response.isSuccessful) {
-                val body = response.body()
-                val data = body?.data
-                if (body?.success == true && data != null) {
+                val data = response.body()
+                android.util.Log.d("CartRepository", "Response body: $data")
+                
+                if (data != null) {
+                    android.util.Log.d("CartRepository", "Success! Total items: ${data.getTotalItems()}")
                     NetworkResult.Success(data)
                 } else {
-                    NetworkResult.Error(response.code(), body?.message ?: "Failed to add to cart")
+                    android.util.Log.e("CartRepository", "Cart data is null")
+                    NetworkResult.Error(response.code(), "Cart data is null")
                 }
             } else {
-                NetworkResult.Error(response.code(), response.message())
+                val errorBody = response.errorBody()?.string()
+                android.util.Log.e("CartRepository", "Error response: ${response.code()} - ${response.message()} - $errorBody")
+                NetworkResult.Error(response.code(), response.message() + (errorBody?.let { " - $it" } ?: ""))
             }
         } catch (e: Exception) {
+            android.util.Log.e("CartRepository", "Exception: ${e.message}", e)
             NetworkResult.Exception(e)
         }
     }
@@ -54,12 +63,11 @@ class CartRepository @Inject constructor(
         return try {
             val response = apiService.removeFromCart(itemId)
             if (response.isSuccessful) {
-                val body = response.body()
-                val data = body?.data
-                if (body?.success == true && data != null) {
+                val data = response.body()
+                if (data != null) {
                     NetworkResult.Success(data)
                 } else {
-                    NetworkResult.Error(response.code(), body?.message ?: "Failed to remove item")
+                    NetworkResult.Error(response.code(), "Failed to remove item")
                 }
             } else {
                 NetworkResult.Error(response.code(), response.message())

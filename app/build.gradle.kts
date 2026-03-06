@@ -83,6 +83,10 @@ dependencies {
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)
 
+    implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.androidx.hilt.work)
+    kapt(libs.androidx.hilt.compiler)
+
     implementation(libs.androidx.datastore.preferences)
 
     implementation(platform(libs.firebase.bom))

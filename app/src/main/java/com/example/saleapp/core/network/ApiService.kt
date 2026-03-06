@@ -23,6 +23,9 @@ interface ApiService {
     @POST("api/Auth/sign-up")
     suspend fun register(@Body request: RegisterRequest): Response<BaseResponse<UserResponse>>
 
+    @GET("api/Auth/me")
+    suspend fun getCurrentUser(): Response<BaseResponse<UserResponse>>
+
     @POST("auth/logout")
     suspend fun logout(): Response<BaseResponse<Unit>>
 
@@ -43,17 +46,17 @@ interface ApiService {
     suspend fun getProductById(@Path("id") id: Long): Response<ProductResponse>
 
     // Cart
-    @GET("cart")
-    suspend fun getCart(): Response<BaseResponse<CartResponse>>
+    @GET("Cart")
+    suspend fun getCart(): Response<CartResponse>
 
-    @POST("cart/add")
-    suspend fun addToCart(@Body request: AddToCartRequest): Response<BaseResponse<CartResponse>>
+    @POST("Cart/items")
+    suspend fun addToCart(@Body request: AddToCartRequest): Response<CartResponse>
 
-    @DELETE("cart/item/{itemId}")
-    suspend fun removeFromCart(@Path("itemId") itemId: Long): Response<BaseResponse<CartResponse>>
+    @DELETE("Cart/items/{itemId}")
+    suspend fun removeFromCart(@Path("itemId") itemId: Long): Response<CartResponse>
 
-    @DELETE("cart/clear")
-    suspend fun clearCart(): Response<BaseResponse<Unit>>
+    @DELETE("Cart/clear")
+    suspend fun clearCart(): Response<Unit>
 
     // Orders
     @GET("orders")

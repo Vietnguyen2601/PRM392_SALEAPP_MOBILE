@@ -67,6 +67,25 @@ class AuthRepository @Inject constructor(
         }
     }
 
+    suspend fun getCurrentUser(): NetworkResult<UserResponse> {
+        return try {
+            val response = apiService.getCurrentUser()
+            if (response.isSuccessful) {
+                val body = response.body()
+                val user = body?.data
+                if (body?.success == true && user != null) {
+                    NetworkResult.Success(user)
+                } else {
+                    NetworkResult.Error(response.code(), body?.message ?: "Failed to get user info")
+                }
+            } else {
+                NetworkResult.Error(response.code(), response.message())
+            }
+        } catch (e: Exception) {
+            NetworkResult.Exception(e)
+        }
+    }
+
     suspend fun logout(): NetworkResult<Unit> {
         return try {
             val response = apiService.logout()
