@@ -1,8 +1,12 @@
 package com.example.saleapp.di
 
+import com.example.saleapp.BuildConfig
 import com.example.saleapp.core.network.ApiClient
 import com.example.saleapp.core.network.ApiService
 import com.example.saleapp.core.network.AuthInterceptor
+import com.example.saleapp.core.network.ChatApiService
+import com.example.saleapp.core.realtime.ChatHubManager
+import com.example.saleapp.core.utils.PreferenceManager
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -29,5 +33,21 @@ object NetworkModule {
     @Singleton
     fun provideApiService(retrofit: Retrofit): ApiService =
         retrofit.create(ApiService::class.java)
+
+    @Provides
+    @Singleton
+    fun provideChatApiService(retrofit: Retrofit): ChatApiService =
+        retrofit.create(ChatApiService::class.java)
+
+    @Provides
+    @Singleton
+    fun provideChatHubManager(preferenceManager: PreferenceManager): ChatHubManager {
+        val baseUrl = BuildConfig.BASE_URL.replace("/api/", "").removeSuffix("/")
+        val token = preferenceManager.getAuthToken() ?: ""
+        return ChatHubManager(baseUrl, token).apply {
+            initialize()
+        }
+    }
 }
+
 

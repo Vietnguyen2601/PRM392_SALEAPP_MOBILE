@@ -11,6 +11,9 @@
         <action
             android:id="@+id/action_homeFragment_to_productDetailFragment"
             app:destination="@id/productDetailFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_chatFragment"
+            app:destination="@id/chatFragment" />
     </fragment>
 
     <fragment
@@ -31,6 +34,11 @@
         android:id="@+id/profileFragment"
         android:name="com.example.saleapp.ui.profile.ProfileFragment"
         android:label="Profile" />
+
+    <fragment
+        android:id="@+id/chatFragment"
+        android:name="com.example.saleapp.ui.chat.ChatFragment"
+        android:label="Chat" />
 
 </navigation>
 

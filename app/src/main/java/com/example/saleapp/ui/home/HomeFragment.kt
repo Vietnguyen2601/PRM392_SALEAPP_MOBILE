@@ -1,5 +1,4 @@
 package com.example.saleapp.ui.home
-
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -16,6 +15,7 @@ import com.example.saleapp.core.utils.showToast
 import com.example.saleapp.databinding.FragmentHomeBinding
 import com.google.android.material.chip.Chip
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -70,36 +70,38 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
     }
 
     override fun observeData() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.productsState.collect { state ->
-                when (state) {
-                    is UiState.Loading -> showLoading(true)
-                    is UiState.Success -> {
-                        showLoading(false)
-                        productAdapter.updateProducts(state.data)
-                        updateResultCount(state.data.size, viewModel.filterState.value)
-                        showEmptyState(state.data.isEmpty())
+        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+            launch {
+                viewModel.productsState.collectLatest { state ->
+                    when (state) {
+                        is UiState.Loading -> showLoading(true)
+                        is UiState.Success -> {
+                            showLoading(false)
+                            productAdapter.updateProducts(state.data)
+                            updateResultCount(state.data.size, viewModel.filterState.value)
+                            showEmptyState(state.data.isEmpty())
+                        }
+                        is UiState.Error -> {
+                            showLoading(false)
+                            showToast(state.message)
+                        }
+                        else -> showLoading(false)
                     }
-                    is UiState.Error -> {
-                        showLoading(false)
-                        showToast(state.message)
-                    }
-                    else -> showLoading(false)
                 }
             }
-        }
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.filterState.collect { filter ->
-                updateActiveFilterChips(filter)
-                // Highlight filter button when active
-                val tint = if (filter.isActive()) {
-                    requireContext().getColor(com.example.saleapp.R.color.teal_700)
-                } else {
-                    requireContext().getColor(com.example.saleapp.R.color.purple_500)
+            launch {
+                viewModel.filterState.collectLatest { filter ->
+                    updateActiveFilterChips(filter)
+                    // Highlight filter button when active
+                    val tint = if (filter.isActive()) {
+                        requireContext().getColor(com.example.saleapp.R.color.teal_700)
+                    } else {
+                        requireContext().getColor(com.example.saleapp.R.color.purple_500)
+                    }
+                    binding.btnFilter.backgroundTintList =
+                        android.content.res.ColorStateList.valueOf(tint)
                 }
-                binding.btnFilter.backgroundTintList =
-                    android.content.res.ColorStateList.valueOf(tint)
             }
         }
     }
