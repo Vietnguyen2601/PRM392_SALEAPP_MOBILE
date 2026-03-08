@@ -23,7 +23,20 @@ class ProfileViewModel @Inject constructor(
     val logoutState: StateFlow<UiState<Unit>> = _logoutState
 
     fun loadProfile() {
-        _profileState.value = UiState.Idle
+        _profileState.value = UiState.Loading
+        viewModelScope.launch(exceptionHandler) {
+            when (val result = authRepository.getCurrentUser()) {
+                is com.example.saleapp.core.network.NetworkResult.Success -> {
+                    _profileState.value = UiState.Success(result.data)
+                }
+                is com.example.saleapp.core.network.NetworkResult.Error -> {
+                    _profileState.value = UiState.Error(result.message ?: "Failed to load profile")
+                }
+                is com.example.saleapp.core.network.NetworkResult.Exception -> {
+                    _profileState.value = UiState.Error(result.e.message ?: "Unknown error")
+                }
+            }
+        }
     }
 
     fun logout() {

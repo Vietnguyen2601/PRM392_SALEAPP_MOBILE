@@ -12,6 +12,7 @@ import com.example.saleapp.core.utils.showToast
 import com.example.saleapp.data.model.response.CartResponse
 import com.example.saleapp.databinding.FragmentCartBinding
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -49,38 +50,40 @@ class CartFragment : BaseFragment<FragmentCartBinding>() {
     }
 
     override fun observeData() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.cartState.collect { state ->
-                when (state) {
-                    is UiState.Loading -> showLoading(true)
-                    is UiState.Success -> {
-                        showLoading(false)
-                        updateCartUI(state.data)
+        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+            launch {
+                viewModel.cartState.collectLatest { state ->
+                    when (state) {
+                        is UiState.Loading -> showLoading(true)
+                        is UiState.Success -> {
+                            showLoading(false)
+                            updateCartUI(state.data)
+                        }
+                        is UiState.Error -> {
+                            showLoading(false)
+                            showToast(state.message)
+                            showEmptyState(true)
+                        }
+                        else -> showLoading(false)
                     }
-                    is UiState.Error -> {
-                        showLoading(false)
-                        showToast(state.message)
-                        showEmptyState(true)
-                    }
-                    else -> showLoading(false)
                 }
             }
-        }
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.removeItemState.collect { state ->
-                when (state) {
-                    is UiState.Loading -> {
-                        // Could show a small loading indicator
+            launch {
+                viewModel.removeItemState.collectLatest { state ->
+                    when (state) {
+                        is UiState.Loading -> {
+                            // Could show a small loading indicator
+                        }
+                        is UiState.Success -> {
+                            showToast("Item removed from cart")
+                            // Cart state will be automatically updated
+                        }
+                        is UiState.Error -> {
+                            showToast("Failed to remove item: ${state.message}")
+                        }
+                        else -> {}
                     }
-                    is UiState.Success -> {
-                        showToast("Item removed from cart")
-                        // Cart state will be automatically updated
-                    }
-                    is UiState.Error -> {
-                        showToast("Failed to remove item: ${state.message}")
-                    }
-                    else -> {}
                 }
             }
         }

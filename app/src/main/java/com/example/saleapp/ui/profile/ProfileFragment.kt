@@ -14,6 +14,7 @@ import com.example.saleapp.core.utils.visible
 import com.example.saleapp.databinding.FragmentProfileBinding
 import com.example.saleapp.ui.auth.login.LoginActivity
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -33,44 +34,46 @@ class ProfileFragment : BaseFragment<FragmentProfileBinding>() {
     }
 
     override fun observeData() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.profileState.collect { state ->
-                when (state) {
-                    is UiState.Loading -> showLoading(true)
-                    is UiState.Success -> {
-                        showLoading(false)
-                        val user = state.data
-                        binding.tvName.text = user.username
-                        binding.tvEmail.text = user.email
+        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+            launch {
+                viewModel.profileState.collectLatest { state ->
+                    when (state) {
+                        is UiState.Loading -> showLoading(true)
+                        is UiState.Success -> {
+                            showLoading(false)
+                            val user = state.data
+                            binding.tvName.text = user.username
+                            binding.tvEmail.text = user.email
+                        }
+                        is UiState.Error -> {
+                            showLoading(false)
+                            showToast(state.message)
+                        }
+                        else -> showLoading(false)
                     }
-                    is UiState.Error -> {
-                        showLoading(false)
-                        showToast(state.message)
-                    }
-                    else -> showLoading(false)
                 }
             }
-        }
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.logoutState.collect { state ->
-                when (state) {
-                    is UiState.Loading -> {
-                        binding.btnLogout.isEnabled = false
-                        showLoading(true)
-                    }
-                    is UiState.Success -> {
-                        showLoading(false)
-                        navigateToLogin()
-                    }
-                    is UiState.Error -> {
-                        binding.btnLogout.isEnabled = true
-                        showLoading(false)
-                        showToast(state.message)
-                    }
-                    else -> {
-                        binding.btnLogout.isEnabled = true
-                        showLoading(false)
+            launch {
+                viewModel.logoutState.collectLatest { state ->
+                    when (state) {
+                        is UiState.Loading -> {
+                            binding.btnLogout.isEnabled = false
+                            showLoading(true)
+                        }
+                        is UiState.Success -> {
+                            showLoading(false)
+                            navigateToLogin()
+                        }
+                        is UiState.Error -> {
+                            binding.btnLogout.isEnabled = true
+                            showLoading(false)
+                            showToast(state.message)
+                        }
+                        else -> {
+                            binding.btnLogout.isEnabled = true
+                            showLoading(false)
+                        }
                     }
                 }
             }

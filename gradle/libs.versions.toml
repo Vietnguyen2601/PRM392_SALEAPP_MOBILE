@@ -44,6 +44,9 @@ firebaseBom = "32.7.2"
 playServicesMaps = "18.2.0"
 playServicesLocation = "21.1.0"
 
+# SignalR
+signalr = "7.0.0"
+
 # ViewPager2
 viewpager2 = "1.0.0"
 
@@ -112,6 +115,9 @@ firebase-database = { group = "com.google.firebase", name = "firebase-database-k
 # Google Maps
 play-services-maps = { group = "com.google.android.gms", name = "play-services-maps", version.ref = "playServicesMaps" }
 play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
+
+# SignalR
+signalr = { group = "com.microsoft.signalr", name = "signalr", version.ref = "signalr" }
 
 # UI Components
 androidx-viewpager2 = { group = "androidx.viewpager2", name = "viewpager2", version.ref = "viewpager2" }
