@@ -1,13 +1,18 @@
 package com.example.saleapp.ui.profile
 
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.example.saleapp.core.base.BaseFragment
 import com.example.saleapp.core.utils.UiState
+import com.example.saleapp.core.utils.gone
 import com.example.saleapp.core.utils.showToast
+import com.example.saleapp.core.utils.visible
 import com.example.saleapp.databinding.FragmentProfileBinding
+import com.example.saleapp.ui.auth.login.LoginActivity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -21,6 +26,10 @@ class ProfileFragment : BaseFragment<FragmentProfileBinding>() {
 
     override fun setupViews() {
         viewModel.loadProfile()
+
+        binding.btnLogout.setOnClickListener {
+            showLogoutConfirmDialog()
+        }
     }
 
     override fun observeData() {
@@ -31,7 +40,8 @@ class ProfileFragment : BaseFragment<FragmentProfileBinding>() {
                     is UiState.Success -> {
                         showLoading(false)
                         val user = state.data
-                        // Update UI with user data
+                        binding.tvName.text = user.username
+                        binding.tvEmail.text = user.email
                     }
                     is UiState.Error -> {
                         showLoading(false)
@@ -41,10 +51,52 @@ class ProfileFragment : BaseFragment<FragmentProfileBinding>() {
                 }
             }
         }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.logoutState.collect { state ->
+                when (state) {
+                    is UiState.Loading -> {
+                        binding.btnLogout.isEnabled = false
+                        showLoading(true)
+                    }
+                    is UiState.Success -> {
+                        showLoading(false)
+                        navigateToLogin()
+                    }
+                    is UiState.Error -> {
+                        binding.btnLogout.isEnabled = true
+                        showLoading(false)
+                        showToast(state.message)
+                    }
+                    else -> {
+                        binding.btnLogout.isEnabled = true
+                        showLoading(false)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun showLogoutConfirmDialog() {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Logout")
+            .setMessage("Are you sure you want to logout?")
+            .setPositiveButton("Logout") { _, _ ->
+                viewModel.logout()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 
     private fun showLoading(show: Boolean) {
-        // Toggle progress bar visibility
+        if (show) binding.progressBar.visible() else binding.progressBar.gone()
+    }
+
+    private fun navigateToLogin() {
+        val intent = Intent(requireContext(), LoginActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+        requireActivity().finish()
     }
 }
 

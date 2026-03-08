@@ -20,15 +20,15 @@ class RegisterViewModel @Inject constructor(
     private val _registerState = MutableStateFlow<UiState<UserResponse>>(UiState.Idle)
     val registerState: StateFlow<UiState<UserResponse>> = _registerState
 
-    fun register(name: String, email: String, password: String, phone: String?) {
-        if (name.isBlank() || email.isBlank() || password.isBlank()) {
-            _registerState.value = UiState.Error("Please fill in all required fields")
+    fun register(username: String, email: String, password: String, phoneNumber: String?, address: String?) {
+        if (username.isBlank() || password.isBlank()) {
+            _registerState.value = UiState.Error("Username and password are required")
             return
         }
 
         viewModelScope.launch(exceptionHandler) {
             _registerState.value = UiState.Loading
-            when (val result = authRepository.register(name, email, password, phone)) {
+            when (val result = authRepository.register(username, email, password, phoneNumber, address)) {
                 is NetworkResult.Success -> _registerState.value = UiState.Success(result.data)
                 is NetworkResult.Error -> _registerState.value = UiState.Error(result.message ?: "Registration failed", result.code)
                 is NetworkResult.Exception -> _registerState.value = UiState.Error(result.e.message ?: "Unknown error")

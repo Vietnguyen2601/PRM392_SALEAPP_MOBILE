@@ -21,11 +21,12 @@ class RegisterActivity : BaseActivity<ActivityRegisterBinding>() {
 
     override fun setupViews() {
         binding.btnRegister.setOnClickListener {
-            val name = binding.etName.text.toString().trim()
+            val username = binding.etName.text.toString().trim()
             val email = binding.etEmail.text.toString().trim()
             val password = binding.etPassword.text.toString().trim()
-            val phone = binding.etPhone.text.toString().trim().ifEmpty { null }
-            viewModel.register(name, email, password, phone)
+            val phoneNumber = binding.etPhone.text.toString().trim().ifEmpty { null }
+            val address = binding.etAddress.text.toString().trim().ifEmpty { null }
+            viewModel.register(username, email, password, phoneNumber, address)
         }
 
         binding.tvLogin.setOnClickListener {

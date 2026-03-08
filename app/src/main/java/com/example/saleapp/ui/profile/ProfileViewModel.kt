@@ -2,7 +2,6 @@ package com.example.saleapp.ui.profile
 
 import androidx.lifecycle.viewModelScope
 import com.example.saleapp.core.base.BaseViewModel
-import com.example.saleapp.core.network.NetworkResult
 import com.example.saleapp.core.utils.UiState
 import com.example.saleapp.data.model.response.UserResponse
 import com.example.saleapp.data.repository.AuthRepository
@@ -20,15 +19,18 @@ class ProfileViewModel @Inject constructor(
     private val _profileState = MutableStateFlow<UiState<UserResponse>>(UiState.Idle)
     val profileState: StateFlow<UiState<UserResponse>> = _profileState
 
+    private val _logoutState = MutableStateFlow<UiState<Unit>>(UiState.Idle)
+    val logoutState: StateFlow<UiState<Unit>> = _logoutState
+
     fun loadProfile() {
-        // Profile data can be loaded from preferences or API
-        // For now, emit idle — extend when needed
         _profileState.value = UiState.Idle
     }
 
     fun logout() {
         viewModelScope.launch(exceptionHandler) {
+            _logoutState.value = UiState.Loading
             authRepository.logout()
+            _logoutState.value = UiState.Success(Unit)
         }
     }
 }
