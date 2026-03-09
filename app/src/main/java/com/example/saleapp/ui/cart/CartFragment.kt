@@ -1,5 +1,6 @@
 package com.example.saleapp.ui.cart
 
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,6 +12,7 @@ import com.example.saleapp.core.utils.UiState
 import com.example.saleapp.core.utils.showToast
 import com.example.saleapp.data.model.response.CartResponse
 import com.example.saleapp.databinding.FragmentCartBinding
+import com.example.saleapp.ui.checkout.CheckoutActivity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -44,8 +46,7 @@ class CartFragment : BaseFragment<FragmentCartBinding>() {
 
     private fun setupCheckoutButton() {
         binding.btnCheckout.setOnClickListener {
-            // TODO: Navigate to checkout screen or create order
-            showToast("Checkout functionality coming soon!")
+            startActivity(Intent(requireContext(), CheckoutActivity::class.java))
         }
     }
 

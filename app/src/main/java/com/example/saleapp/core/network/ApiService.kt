@@ -2,12 +2,15 @@ package com.example.saleapp.core.network
 
 import com.example.saleapp.data.model.request.AddToCartRequest
 import com.example.saleapp.data.model.request.CreateOrderRequest
+import com.example.saleapp.data.model.request.CreatePaymentRequest
 import com.example.saleapp.data.model.request.LoginRequest
 import com.example.saleapp.data.model.request.RegisterRequest
 import com.example.saleapp.data.model.response.BaseResponse
 import com.example.saleapp.data.model.response.CartResponse
+import com.example.saleapp.data.model.response.CreatePaymentResponse
 import com.example.saleapp.data.model.response.LoginResponse
 import com.example.saleapp.data.model.response.OrderResponse
+import com.example.saleapp.data.model.response.PaymentStatusResponse
 import com.example.saleapp.data.model.response.ProductResponse
 import com.example.saleapp.data.model.response.RegisterResponse
 import com.example.saleapp.data.model.response.UserResponse
@@ -66,10 +69,21 @@ interface ApiService {
     suspend fun getOrderById(@Path("id") id: Long): Response<BaseResponse<OrderResponse>>
 
     @POST("orders")
-    suspend fun createOrder(@Body request: CreateOrderRequest): Response<BaseResponse<OrderResponse>>
+    suspend fun createOrder(@Body request: CreateOrderRequest): Response<OrderResponse>
 
     // User Profile
     @GET("users/me")
     suspend fun getUserProfile(): Response<BaseResponse<UserResponse>>
+
+    // Mobile Payments (VNPay)
+    @POST("mobile/payments/create")
+    suspend fun createMobilePayment(
+        @Body request: CreatePaymentRequest
+    ): Response<CreatePaymentResponse>
+
+    @GET("mobile/payments/{paymentId}/status")
+    suspend fun getPaymentStatus(
+        @Path("paymentId") paymentId: Int
+    ): Response<PaymentStatusResponse>
 }
 

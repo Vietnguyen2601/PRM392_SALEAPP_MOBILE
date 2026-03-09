@@ -30,8 +30,10 @@ object ApiClient {
     }
 
     fun createRetrofit(okHttpClient: OkHttpClient): Retrofit {
+        // ApiConfig.BASE_URL allows switching between emulator / real device / production
+        // without changing build.gradle. See ApiConfig.kt for instructions.
         return Retrofit.Builder()
-            .baseUrl(BuildConfig.BASE_URL)
+            .baseUrl(ApiConfig.BASE_URL)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()

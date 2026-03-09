@@ -101,6 +101,12 @@ dependencies {
     implementation(libs.androidx.viewpager2)
     implementation(libs.androidx.swiperefreshlayout)
 
+    // VNPay Mobile SDK (.aar)
+    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.aar", "*.jar"))))
+
+    // Chrome Custom Tabs (VNPay payment browser fallback)
+    implementation("androidx.browser:browser:1.8.0")
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
