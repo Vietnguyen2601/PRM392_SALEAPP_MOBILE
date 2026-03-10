@@ -20,10 +20,10 @@ interface ApiService {
     @POST("Auth/login")
     suspend fun login(@Body request: LoginRequest): Response<LoginResponse>
 
-    @POST("api/Auth/sign-up")
+    @POST("Auth/sign-up")
     suspend fun register(@Body request: RegisterRequest): Response<BaseResponse<UserResponse>>
 
-    @GET("api/Auth/me")
+    @GET("Auth/me")
     suspend fun getCurrentUser(): Response<BaseResponse<UserResponse>>
 
     @POST("auth/logout")

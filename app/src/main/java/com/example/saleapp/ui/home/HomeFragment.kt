@@ -1,13 +1,13 @@
 package com.example.saleapp.ui.home
-
-import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.saleapp.core.base.BaseFragment
@@ -16,6 +16,7 @@ import com.example.saleapp.core.utils.showToast
 import com.example.saleapp.databinding.FragmentHomeBinding
 import com.google.android.material.chip.Chip
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -71,35 +72,38 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
 
     override fun observeData() {
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.productsState.collect { state ->
-                when (state) {
-                    is UiState.Loading -> showLoading(true)
-                    is UiState.Success -> {
-                        showLoading(false)
-                        productAdapter.updateProducts(state.data)
-                        updateResultCount(state.data.size, viewModel.filterState.value)
-                        showEmptyState(state.data.isEmpty())
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.productsState.collectLatest { state ->
+                        when (state) {
+                            is UiState.Loading -> showLoading(true)
+                            is UiState.Success -> {
+                                showLoading(false)
+                                productAdapter.updateProducts(state.data)
+                                updateResultCount(state.data.size, viewModel.filterState.value)
+                                showEmptyState(state.data.isEmpty())
+                            }
+                            is UiState.Error -> {
+                                showLoading(false)
+                                showToast(state.message)
+                            }
+                            else -> showLoading(false)
+                        }
                     }
-                    is UiState.Error -> {
-                        showLoading(false)
-                        showToast(state.message)
-                    }
-                    else -> showLoading(false)
                 }
-            }
-        }
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.filterState.collect { filter ->
-                updateActiveFilterChips(filter)
-                // Highlight filter button when active
-                val tint = if (filter.isActive()) {
-                    requireContext().getColor(com.example.saleapp.R.color.teal_700)
-                } else {
-                    requireContext().getColor(com.example.saleapp.R.color.purple_500)
+                launch {
+                    viewModel.filterState.collectLatest { filter ->
+                        updateActiveFilterChips(filter)
+                        val tint = if (filter.isActive()) {
+                            requireContext().getColor(com.example.saleapp.R.color.teal_700)
+                        } else {
+                            requireContext().getColor(com.example.saleapp.R.color.purple_500)
+                        }
+                        binding.btnFilter.backgroundTintList =
+                            android.content.res.ColorStateList.valueOf(tint)
+                    }
                 }
-                binding.btnFilter.backgroundTintList =
-                    android.content.res.ColorStateList.valueOf(tint)
             }
         }
     }

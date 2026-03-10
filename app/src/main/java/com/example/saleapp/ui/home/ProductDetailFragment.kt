@@ -13,6 +13,7 @@ import com.example.saleapp.core.utils.showToast
 import com.example.saleapp.data.model.response.ProductResponse
 import com.example.saleapp.databinding.FragmentProductDetailBinding
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -60,49 +61,51 @@ class ProductDetailFragment : BaseFragment<FragmentProductDetailBinding>() {
     }
 
     override fun observeData() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.productState.collect { state ->
-                when (state) {
-                    is UiState.Loading -> showLoading(true)
-                    is UiState.Success -> {
-                        showLoading(false)
-                        displayProduct(state.data)
+        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+            launch {
+                viewModel.productState.collectLatest { state ->
+                    when (state) {
+                        is UiState.Loading -> showLoading(true)
+                        is UiState.Success -> {
+                            showLoading(false)
+                            displayProduct(state.data)
+                        }
+                        is UiState.Error -> {
+                            showLoading(false)
+                            showToast(state.message)
+                        }
+                        else -> showLoading(false)
                     }
-                    is UiState.Error -> {
-                        showLoading(false)
-                        showToast(state.message)
-                    }
-                    else -> showLoading(false)
                 }
             }
-        }
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.addToCartState.collect { state ->
-                when (state) {
-                    is UiState.Loading -> {
-                        binding.btnAddToCart.isEnabled = false
-                        binding.btnAddToCart.text = "Adding..."
-                    }
-                    is UiState.Success -> {
-                        binding.btnAddToCart.isEnabled = true
-                        binding.btnAddToCart.text = "Add to Cart"
-                        val totalItems = state.data.getTotalItems()
-                        android.util.Log.d("ProductDetailFragment", "Added to cart successfully, total items: $totalItems")
-                        showToast("Added $currentQuantity item(s) to cart! Total: $totalItems")
-                        // Reset quantity to 1 after successful add
-                        currentQuantity = 1
-                        binding.tvQuantity.text = "1"
-                    }
-                    is UiState.Error -> {
-                        binding.btnAddToCart.isEnabled = true
-                        binding.btnAddToCart.text = "Add to Cart"
-                        android.util.Log.e("ProductDetailFragment", "Failed to add to cart: ${state.message}")
-                        showToast("Failed: ${state.message}")
-                    }
-                    else -> {
-                        binding.btnAddToCart.isEnabled = true
-                        binding.btnAddToCart.text = "Add to Cart"
+            launch {
+                viewModel.addToCartState.collectLatest { state ->
+                    when (state) {
+                        is UiState.Loading -> {
+                            binding.btnAddToCart.isEnabled = false
+                            binding.btnAddToCart.text = "Adding..."
+                        }
+                        is UiState.Success -> {
+                            binding.btnAddToCart.isEnabled = true
+                            binding.btnAddToCart.text = "Add to Cart"
+                            val totalItems = state.data.getTotalItems()
+                            android.util.Log.d("ProductDetailFragment", "Added to cart successfully, total items: $totalItems")
+                            showToast("Added $currentQuantity item(s) to cart! Total: $totalItems")
+                            // Reset quantity to 1 after successful add
+                            currentQuantity = 1
+                            binding.tvQuantity.text = "1"
+                        }
+                        is UiState.Error -> {
+                            binding.btnAddToCart.isEnabled = true
+                            binding.btnAddToCart.text = "Add to Cart"
+                            android.util.Log.e("ProductDetailFragment", "Failed to add to cart: ${state.message}")
+                            showToast("Failed: ${state.message}")
+                        }
+                        else -> {
+                            binding.btnAddToCart.isEnabled = true
+                            binding.btnAddToCart.text = "Add to Cart"
+                        }
                     }
                 }
             }
