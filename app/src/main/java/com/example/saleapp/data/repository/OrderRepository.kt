@@ -5,6 +5,7 @@ import com.example.saleapp.core.network.ApiService
 import com.example.saleapp.core.network.NetworkResult
 import com.example.saleapp.data.model.request.CreateOrderRequest
 import com.example.saleapp.data.model.response.OrderResponse
+import com.example.saleapp.data.model.response.PagedOrderResponse
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -13,8 +14,22 @@ class OrderRepository @Inject constructor(
     private val apiService: ApiService
 ) {
 
-    suspend fun getOrders(): NetworkResult<List<OrderResponse>> {
+    suspend fun getMyOrders(page: Int = 1, pageSize: Int = 10): NetworkResult<PagedOrderResponse> {
         return try {
+            val response = apiService.getMyOrders(page, pageSize)
+            if (response.isSuccessful) {
+                val body = response.body()
+                if (body != null) NetworkResult.Success(body)
+                else NetworkResult.Error(response.code(), "Empty response")
+            } else {
+                NetworkResult.Error(response.code(), response.message())
+            }
+        } catch (e: Exception) {
+            NetworkResult.Exception(e)
+        }
+    }
+
+    suspend fun getOrders(): NetworkResult<List<OrderResponse>> {        return try {
             val response = apiService.getOrders()
             if (response.isSuccessful) {
                 val body = response.body()

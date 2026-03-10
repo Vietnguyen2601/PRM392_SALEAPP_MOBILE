@@ -9,7 +9,9 @@ import com.example.saleapp.data.model.response.BaseResponse
 import com.example.saleapp.data.model.response.CartResponse
 import com.example.saleapp.data.model.response.CreatePaymentResponse
 import com.example.saleapp.data.model.response.LoginResponse
+import com.example.saleapp.data.model.response.MyOrderSummaryResponse
 import com.example.saleapp.data.model.response.OrderResponse
+import com.example.saleapp.data.model.response.PagedOrderResponse
 import com.example.saleapp.data.model.response.PaymentStatusResponse
 import com.example.saleapp.data.model.response.ProductResponse
 import com.example.saleapp.data.model.response.RegisterResponse
@@ -64,6 +66,12 @@ interface ApiService {
     // Orders
     @GET("orders")
     suspend fun getOrders(): Response<BaseResponse<List<OrderResponse>>>
+
+    @GET("Orders/my")
+    suspend fun getMyOrders(
+        @Query("page")     page: Int = 1,
+        @Query("pageSize") pageSize: Int = 10
+    ): Response<PagedOrderResponse>
 
     @GET("orders/{id}")
     suspend fun getOrderById(@Path("id") id: Long): Response<BaseResponse<OrderResponse>>
