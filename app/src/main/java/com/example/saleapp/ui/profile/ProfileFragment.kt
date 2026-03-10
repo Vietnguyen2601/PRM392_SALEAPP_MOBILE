@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.saleapp.core.base.BaseFragment
@@ -60,14 +61,8 @@ class ProfileFragment : BaseFragment<FragmentProfileBinding>() {
                             binding.tvName.text = state.data.username
                             binding.tvEmail.text = state.data.email
                         }
-                        is UiState.Error -> {
-                            showLoading(false)
-                            showToast(state.message)
-                        }
-                        else -> showLoading(false)
                     }
                 }
-            }
 
             // Orders
             launch {

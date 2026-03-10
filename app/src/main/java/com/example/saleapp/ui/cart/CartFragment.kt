@@ -5,7 +5,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.saleapp.core.base.BaseFragment
 import com.example.saleapp.core.utils.UiState
@@ -16,6 +18,7 @@ import com.example.saleapp.ui.checkout.CheckoutActivity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 @AndroidEntryPoint
 class CartFragment : BaseFragment<FragmentCartBinding>() {
@@ -34,7 +37,6 @@ class CartFragment : BaseFragment<FragmentCartBinding>() {
 
     private fun setupRecyclerView() {
         cartItemAdapter = CartItemAdapter { cartItem ->
-            // Handle remove item
             cartItem.cartItemId?.let { viewModel.removeItem(it) }
         }
 
@@ -51,39 +53,39 @@ class CartFragment : BaseFragment<FragmentCartBinding>() {
     }
 
     override fun observeData() {
-        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-            launch {
-                viewModel.cartState.collectLatest { state ->
-                    when (state) {
-                        is UiState.Loading -> showLoading(true)
-                        is UiState.Success -> {
-                            showLoading(false)
-                            updateCartUI(state.data)
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.cartState.collectLatest { state ->
+                        when (state) {
+                            is UiState.Loading -> showLoading(true)
+                            is UiState.Success -> {
+                                showLoading(false)
+                                updateCartUI(state.data)
+                            }
+                            is UiState.Error -> {
+                                showLoading(false)
+                                showToast(state.message)
+                                showEmptyState(true)
+                            }
+                            else -> showLoading(false)
                         }
-                        is UiState.Error -> {
-                            showLoading(false)
-                            showToast(state.message)
-                            showEmptyState(true)
-                        }
-                        else -> showLoading(false)
                     }
                 }
-            }
 
-            launch {
-                viewModel.removeItemState.collectLatest { state ->
-                    when (state) {
-                        is UiState.Loading -> {
-                            // Could show a small loading indicator
+                launch {
+                    viewModel.removeItemState.collectLatest { state ->
+                        when (state) {
+                            is UiState.Loading -> {
+                            }
+                            is UiState.Success -> {
+                                showToast("Item removed from cart")
+                            }
+                            is UiState.Error -> {
+                                showToast("Failed to remove item: ${state.message}")
+                            }
+                            else -> {}
                         }
-                        is UiState.Success -> {
-                            showToast("Item removed from cart")
-                            // Cart state will be automatically updated
-                        }
-                        is UiState.Error -> {
-                            showToast("Failed to remove item: ${state.message}")
-                        }
-                        else -> {}
                     }
                 }
             }
@@ -100,8 +102,8 @@ class CartFragment : BaseFragment<FragmentCartBinding>() {
             
             // Update summary
             binding.tvTotalItems.text = cartResponse.getTotalItems().toString()
-            binding.tvTotalAmount.text = "$${String.format("%.2f", cartResponse.getTotalAmount())}"
-            
+            binding.tvTotalAmount.text = String.format(Locale.US, "$%.2f", cartResponse.getTotalAmount())
+
             // Enable/disable checkout button
             binding.btnCheckout.isEnabled = itemsList.isNotEmpty()
         }
