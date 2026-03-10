@@ -46,10 +46,14 @@ class ChatViewModel @Inject constructor(
     private fun setupRealtimeListeners() {
         chatRepository.setMessageReceivedListener { message ->
             _newMessage.value = message
-            // Add to messages list
+            // Add to messages list (this is for messages from shop/admin)
             val currentMessages = _messages.value.toMutableList()
-            currentMessages.add(message)
-            _messages.value = currentMessages
+            // Check if message already exists before adding
+            val existingIndex = currentMessages.indexOfFirst { it.chatMessageId == message.chatMessageId }
+            if (existingIndex == -1) {
+                currentMessages.add(message)
+                _messages.value = currentMessages
+            }
         }
 
         chatRepository.setMessageSentListener { message ->
@@ -57,9 +61,9 @@ class ChatViewModel @Inject constructor(
             _newMessage.value = message
             val currentMessages = _messages.value.toMutableList()
 
-            // Find and remove temporary message (with ID 0) that has the same content
-            val tempIndex = currentMessages.indexOfFirst {
-                it.chatMessageId == 0 && it.message == message.message && it.senderType == "User"
+            // Find and remove ALL temporary messages (with ID 0 or negative) that have the same content
+            val tempIndex = currentMessages.indexOfLast {
+                (it.chatMessageId <= 0) && it.message == message.message && it.senderType == "User"
             }
             if (tempIndex != -1) {
                 currentMessages.removeAt(tempIndex)
@@ -162,9 +166,9 @@ class ChatViewModel @Inject constructor(
             try {
                 if (chatRepository.isConnected()) {
                     // Use SignalR for real-time sending
-                    // Optimistically add message to UI immediately
+                    // Optimistically add message to UI immediately with unique negative ID
                     val tempMessage = ChatMessageDto(
-                        chatMessageId = 0, // Temporary ID
+                        chatMessageId = -(System.currentTimeMillis().toInt()), // Unique negative ID
                         conversationId = conversationId,
                         senderType = "User",
                         message = message,
@@ -184,7 +188,7 @@ class ChatViewModel @Inject constructor(
                         .onFailure { error ->
                             // Remove the temporary message on failure
                             val updatedMessages = _messages.value.toMutableList()
-                            updatedMessages.remove(tempMessage)
+                            updatedMessages.removeAll { it.chatMessageId == tempMessage.chatMessageId }
                             _messages.value = updatedMessages
                             _sendMessageState.value = UiState.Error(error.message ?: "Failed to send")
                         }
@@ -193,8 +197,14 @@ class ChatViewModel @Inject constructor(
                     when (val result = chatRepository.sendMessageRest(conversationId, message)) {
                         is NetworkResult.Success -> {
                             val currentMessages = _messages.value.toMutableList()
-                            currentMessages.add(result.data)
-                            _messages.value = currentMessages
+                            // Check if message already exists (shouldn't happen but be safe)
+                            val existingIndex = currentMessages.indexOfFirst {
+                                it.chatMessageId == result.data.chatMessageId
+                            }
+                            if (existingIndex == -1) {
+                                currentMessages.add(result.data)
+                                _messages.value = currentMessages
+                            }
                             _sendMessageState.value = UiState.Success(Unit)
                         }
                         is NetworkResult.Error -> {
