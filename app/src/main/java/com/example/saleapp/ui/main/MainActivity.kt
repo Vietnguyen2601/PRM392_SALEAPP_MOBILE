@@ -102,10 +102,18 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         )
     }
     
+    override fun onNewIntent(intent: android.content.Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleNotificationIntent()
+    }
+
     private fun handleNotificationIntent() {
-        if (intent?.action == "open_cart") {
-            // Navigate to cart fragment
-            navController.navigate(R.id.cartFragment)
+        when (intent?.action) {
+            "open_cart" -> navController.navigate(R.id.cartFragment)
+            "open_home" -> {
+                navController.popBackStack(R.id.homeFragment, false)
+            }
         }
     }
 }

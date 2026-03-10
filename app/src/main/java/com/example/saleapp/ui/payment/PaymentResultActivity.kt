@@ -39,7 +39,7 @@ class PaymentResultActivity : BaseActivity<ActivityPaymentResultBinding>() {
             }
         })
 
-        binding.btnGoHomeSuccess.setOnClickListener { navigateToMain() }
+        binding.btnGoHomeSuccess.setOnClickListener { navigateToHome() }
         binding.btnGoHomeFailure.setOnClickListener { navigateToMain() }
         binding.btnRetry.setOnClickListener { navigateToCheckout() }
 
@@ -135,6 +135,15 @@ class PaymentResultActivity : BaseActivity<ActivityPaymentResultBinding>() {
     private fun navigateToMain() {
         val intent = Intent(this, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+        }
+        startActivity(intent)
+        finish()
+    }
+
+    private fun navigateToHome() {
+        val intent = Intent(this, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            action = "open_home"
         }
         startActivity(intent)
         finish()
