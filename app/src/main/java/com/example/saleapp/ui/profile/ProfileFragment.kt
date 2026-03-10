@@ -5,7 +5,9 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.example.saleapp.core.base.BaseFragment
 import com.example.saleapp.core.utils.UiState
 import com.example.saleapp.core.utils.gone
@@ -34,45 +36,47 @@ class ProfileFragment : BaseFragment<FragmentProfileBinding>() {
     }
 
     override fun observeData() {
-        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-            launch {
-                viewModel.profileState.collectLatest { state ->
-                    when (state) {
-                        is UiState.Loading -> showLoading(true)
-                        is UiState.Success -> {
-                            showLoading(false)
-                            val user = state.data
-                            binding.tvName.text = user.username
-                            binding.tvEmail.text = user.email
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.profileState.collectLatest { state ->
+                        when (state) {
+                            is UiState.Loading -> showLoading(true)
+                            is UiState.Success -> {
+                                showLoading(false)
+                                val user = state.data
+                                binding.tvName.text = user.username
+                                binding.tvEmail.text = user.email
+                            }
+                            is UiState.Error -> {
+                                showLoading(false)
+                                showToast(state.message)
+                            }
+                            else -> showLoading(false)
                         }
-                        is UiState.Error -> {
-                            showLoading(false)
-                            showToast(state.message)
-                        }
-                        else -> showLoading(false)
                     }
                 }
-            }
 
-            launch {
-                viewModel.logoutState.collectLatest { state ->
-                    when (state) {
-                        is UiState.Loading -> {
-                            binding.btnLogout.isEnabled = false
-                            showLoading(true)
-                        }
-                        is UiState.Success -> {
-                            showLoading(false)
-                            navigateToLogin()
-                        }
-                        is UiState.Error -> {
-                            binding.btnLogout.isEnabled = true
-                            showLoading(false)
-                            showToast(state.message)
-                        }
-                        else -> {
-                            binding.btnLogout.isEnabled = true
-                            showLoading(false)
+                launch {
+                    viewModel.logoutState.collectLatest { state ->
+                        when (state) {
+                            is UiState.Loading -> {
+                                binding.btnLogout.isEnabled = false
+                                showLoading(true)
+                            }
+                            is UiState.Success -> {
+                                showLoading(false)
+                                navigateToLogin()
+                            }
+                            is UiState.Error -> {
+                                binding.btnLogout.isEnabled = true
+                                showLoading(false)
+                                showToast(state.message)
+                            }
+                            else -> {
+                                binding.btnLogout.isEnabled = true
+                                showLoading(false)
+                            }
                         }
                     }
                 }

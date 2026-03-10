@@ -5,7 +5,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.saleapp.core.base.BaseFragment
 import com.example.saleapp.core.utils.UiState
@@ -29,7 +31,6 @@ class ChatFragment : BaseFragment<FragmentChatBinding>() {
         setupRecyclerView()
         setupInputArea()
 
-        // Connect to chat and create conversation
         viewModel.connectToChat()
         viewModel.createOrGetConversation()
     }
@@ -53,7 +54,6 @@ class ChatFragment : BaseFragment<FragmentChatBinding>() {
             }
         }
 
-        // Typing indicator
         var typingJob: kotlinx.coroutines.Job? = null
         binding.etMessage.addTextChangedListener { text ->
             typingJob?.cancel()
@@ -66,94 +66,95 @@ class ChatFragment : BaseFragment<FragmentChatBinding>() {
     }
 
     override fun observeData() {
-        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-            // Observe conversation creation
-            launch {
-                viewModel.conversationState.collectLatest { state ->
-                    when (state) {
-                        is UiState.Loading -> {
-                            binding.pbLoading.visibility = View.VISIBLE
-                        }
-                        is UiState.Success -> {
-                            binding.pbLoading.visibility = View.GONE
-                            conversationId = state.data.conversationId
-                            viewModel.loadMessages(state.data.conversationId)
-                        }
-                        is UiState.Error -> {
-                            binding.pbLoading.visibility = View.GONE
-                            showToast(state.message)
-                        }
-                        else -> {}
-                    }
-                }
-            }
-
-            // Observe messages
-            launch {
-                viewModel.messages.collectLatest { messages ->
-                    messageAdapter.submitList(messages)
-                    if (messages.isNotEmpty()) {
-                        binding.llEmptyState.visibility = View.GONE
-                        binding.rvMessages.scrollToPosition(messages.size - 1)
-                    } else {
-                        binding.llEmptyState.visibility = View.VISIBLE
-                    }
-                }
-            }
-
-            // Observe connection status
-            launch {
-                viewModel.connectionState.collectLatest { status ->
-                    when (status) {
-                        "Connected" -> {
-                            binding.cvConnectionStatus.visibility = View.GONE
-                        }
-                        "Connecting..." -> {
-                            binding.cvConnectionStatus.visibility = View.VISIBLE
-                            binding.tvConnectionStatus.text = "Connecting..."
-                        }
-                        "Disconnected" -> {
-                            binding.cvConnectionStatus.visibility = View.VISIBLE
-                            binding.tvConnectionStatus.text = "Disconnected. Trying to reconnect..."
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.conversationState.collectLatest { state ->
+                        when (state) {
+                            is UiState.Loading -> {
+                                binding.pbLoading.visibility = View.VISIBLE
+                            }
+                            is UiState.Success -> {
+                                binding.pbLoading.visibility = View.GONE
+                                conversationId = state.data.conversationId
+                                viewModel.loadMessages(state.data.conversationId)
+                            }
+                            is UiState.Error -> {
+                                binding.pbLoading.visibility = View.GONE
+                                showToast(state.message)
+                            }
+                            else -> {}
                         }
                     }
                 }
-            }
 
-            // Observe typing indicator
-            launch {
-                viewModel.isTyping.collectLatest { isTyping ->
-                    binding.llTypingIndicator.visibility = if (isTyping) View.VISIBLE else View.GONE
-                }
-            }
-
-            // Observe send message state
-            launch {
-                viewModel.sendMessageState.collectLatest { state ->
-                    when (state) {
-                        is UiState.Loading -> {
-                            binding.fabSend.isEnabled = false
-                        }
-                        is UiState.Success -> {
-                            binding.fabSend.isEnabled = true
-                        }
-                        is UiState.Error -> {
-                            binding.fabSend.isEnabled = true
-                            showToast(getString(com.example.saleapp.R.string.chat_send_failed, state.message))
-                        }
-                        else -> {
-                            binding.fabSend.isEnabled = true
+                launch {
+                    viewModel.messages.collectLatest { messages ->
+                        messageAdapter.submitList(messages.toList())
+                        if (messages.isNotEmpty()) {
+                            binding.llEmptyState.visibility = View.GONE
+                            binding.rvMessages.post {
+                                binding.rvMessages.scrollToPosition(messages.size - 1)
+                            }
+                        } else {
+                            binding.llEmptyState.visibility = View.VISIBLE
                         }
                     }
                 }
-            }
 
-            // Observe new messages
-            launch {
-                viewModel.newMessage.collectLatest { message ->
-                    message?.let {
-                        // Scroll to bottom when new message arrives
-                        binding.rvMessages.scrollToPosition(messageAdapter.itemCount - 1)
+                launch {
+                    viewModel.connectionState.collectLatest { status ->
+                        when (status) {
+                            "Connected" -> {
+                                binding.cvConnectionStatus.visibility = View.GONE
+                            }
+                            "Connecting..." -> {
+                                binding.cvConnectionStatus.visibility = View.VISIBLE
+                                binding.tvConnectionStatus.text = "Connecting..."
+                            }
+                            "Disconnected" -> {
+                                binding.cvConnectionStatus.visibility = View.VISIBLE
+                                binding.tvConnectionStatus.text = "Disconnected. Trying to reconnect..."
+                            }
+                        }
+                    }
+                }
+
+                launch {
+                    viewModel.isTyping.collectLatest { isTyping ->
+                        binding.llTypingIndicator.visibility = if (isTyping) View.VISIBLE else View.GONE
+                    }
+                }
+
+                launch {
+                    viewModel.sendMessageState.collectLatest { state ->
+                        when (state) {
+                            is UiState.Loading -> {
+                                binding.fabSend.isEnabled = false
+                            }
+                            is UiState.Success -> {
+                                binding.fabSend.isEnabled = true
+                            }
+                            is UiState.Error -> {
+                                binding.fabSend.isEnabled = true
+                                showToast(getString(com.example.saleapp.R.string.chat_send_failed, state.message))
+                            }
+                            else -> {
+                                binding.fabSend.isEnabled = true
+                            }
+                        }
+                    }
+                }
+
+                launch {
+                    viewModel.newMessage.collectLatest { message ->
+                        message?.let {
+                            binding.rvMessages.post {
+                                if (messageAdapter.itemCount > 0) {
+                                    binding.rvMessages.scrollToPosition(messageAdapter.itemCount - 1)
+                                }
+                            }
+                        }
                     }
                 }
             }
