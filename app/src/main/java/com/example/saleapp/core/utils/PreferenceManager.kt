@@ -5,6 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -28,6 +29,7 @@ class PreferenceManager @Inject constructor(
         val KEY_USER_ID = stringPreferencesKey(Constants.KEY_USER_ID)
         val KEY_USER_EMAIL = stringPreferencesKey(Constants.KEY_USER_EMAIL)
         val KEY_IS_LOGGED_IN = booleanPreferencesKey(Constants.KEY_IS_LOGGED_IN)
+        val KEY_CURRENT_PAYMENT_ID = intPreferencesKey("current_payment_id")
     }
 
     fun getAuthToken(): String? = runBlocking {
@@ -60,6 +62,18 @@ class PreferenceManager @Inject constructor(
 
     suspend fun setLoggedIn(loggedIn: Boolean) {
         dataStore.edit { it[KEY_IS_LOGGED_IN] = loggedIn }
+    }
+
+    suspend fun saveCurrentPaymentId(paymentId: Int) {
+        dataStore.edit { it[KEY_CURRENT_PAYMENT_ID] = paymentId }
+    }
+
+    fun getCurrentPaymentId(): Int = runBlocking {
+        dataStore.data.map { it[KEY_CURRENT_PAYMENT_ID] ?: 0 }.first()
+    }
+
+    suspend fun clearCurrentPaymentId() {
+        dataStore.edit { it.remove(KEY_CURRENT_PAYMENT_ID) }
     }
 
     suspend fun clearAll() {

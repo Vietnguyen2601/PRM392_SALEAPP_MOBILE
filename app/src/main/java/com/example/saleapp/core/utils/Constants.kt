@@ -24,7 +24,7 @@ object Constants {
     const val PAGE_SIZE = 20
 
     // VNPay
-    const val VNPAY_RETURN_URL = "salesapp://payment/result"
+    const val VNPAY_RETURN_URL = "saleapp://payment/callback"
 
     // Sort Options
     const val SORT_PRICE_LOW_TO_HIGH = "price_asc"

@@ -53,6 +53,9 @@ viewpager2 = "1.0.0"
 # SwipeRefreshLayout
 swiperefreshlayout = "1.1.0"
 
+# Browser (Custom Tabs for VNPay)
+browser = "1.8.0"
+
 # Testing
 junit = "4.13.2"
 junitExt = "1.1.5"
@@ -122,6 +125,7 @@ signalr = { group = "com.microsoft.signalr", name = "signalr", version.ref = "si
 # UI Components
 androidx-viewpager2 = { group = "androidx.viewpager2", name = "viewpager2", version.ref = "viewpager2" }
 androidx-swiperefreshlayout = { group = "androidx.swiperefreshlayout", name = "swiperefreshlayout", version.ref = "swiperefreshlayout" }
+androidx-browser = { group = "androidx.browser", name = "browser", version.ref = "browser" }
 
 # Testing
 junit = { group = "junit", name = "junit", version.ref = "junit" }

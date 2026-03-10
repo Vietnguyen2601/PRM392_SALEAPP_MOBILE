@@ -1,6 +1,6 @@
 package com.example.saleapp.di
 
-import com.example.saleapp.BuildConfig
+import com.example.saleapp.core.network.ApiConfig
 import com.example.saleapp.core.network.ApiClient
 import com.example.saleapp.core.network.ApiService
 import com.example.saleapp.core.network.AuthInterceptor
@@ -42,7 +42,7 @@ object NetworkModule {
     @Provides
     @Singleton
     fun provideChatHubManager(preferenceManager: PreferenceManager): ChatHubManager {
-        val baseUrl = BuildConfig.BASE_URL.replace("/api/", "").removeSuffix("/")
+        val baseUrl = ApiConfig.BASE_URL.replace("/api/", "").removeSuffix("/")
         val token = preferenceManager.getAuthToken() ?: ""
         return ChatHubManager(baseUrl, token).apply {
             initialize()
