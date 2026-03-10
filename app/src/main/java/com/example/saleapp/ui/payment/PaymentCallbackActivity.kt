@@ -1,15 +1,14 @@
 package com.example.saleapp.ui.payment
 
 import android.content.Intent
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.example.saleapp.core.base.BaseActivity
 import com.example.saleapp.core.utils.UiState
-import com.example.saleapp.core.utils.showToast
 import com.example.saleapp.databinding.ActivityPaymentCallbackBinding
-import com.example.saleapp.ui.main.MainActivity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -33,6 +32,9 @@ class PaymentCallbackActivity : BaseActivity<ActivityPaymentCallbackBinding>() {
 
     private val viewModel: PaymentCallbackViewModel by viewModels()
 
+    // VNPay response code từ deep link URI — "00" nghĩa là VNPay xác nhận thành công
+    private var vnpResponseCode: String = ""
+
     override fun setupViews() {
         // Prevent back-press while verifying
         onBackPressedDispatcher.addCallback(this, object : androidx.activity.OnBackPressedCallback(true) {
@@ -41,7 +43,19 @@ class PaymentCallbackActivity : BaseActivity<ActivityPaymentCallbackBinding>() {
             }
         })
 
-        viewModel.verifyPayment()
+        // Đọc tất cả params từ deep link: saleapp://payment/callback?vnp_ResponseCode=00&...
+        // Sau đó forward nguyên vẹn lên backend Payment/vnpay/callback
+        val vnpayParams = mutableMapOf<String, String>()
+        intent.data?.let { uri ->
+            uri.queryParameterNames.forEach { key ->
+                uri.getQueryParameter(key)?.let { value -> vnpayParams[key] = value }
+            }
+            vnpResponseCode = vnpayParams["vnp_ResponseCode"] ?: ""
+            val txnStatus = vnpayParams["vnp_TransactionStatus"] ?: ""
+            Log.d(TAG, "Deep link params: ResponseCode=$vnpResponseCode TxnStatus=$txnStatus total=${vnpayParams.size}")
+        }
+
+        viewModel.verifyPayment(vnpayParams)
     }
 
     override fun observeData() {
@@ -53,23 +67,35 @@ class PaymentCallbackActivity : BaseActivity<ActivityPaymentCallbackBinding>() {
                         binding.tvStatus.text = "Đang xác nhận thanh toán..."
                     }
                     is UiState.Success -> {
-                        val paymentStatus = state.data
-                        if (paymentStatus.isPaid) {
-                            binding.progressBar.visibility = View.GONE
-                            binding.tvStatus.text = "Thanh toán thành công!"
-                            navigateToMainWithSuccess(paymentStatus.orderId)
-                        } else {
-                            binding.progressBar.visibility = View.GONE
-                            binding.tvStatus.text = paymentStatus.message
-                            showToast(paymentStatus.message)
-                            navigateToMainWithFailure(paymentStatus.message, paymentStatus.canRetry)
+                        binding.progressBar.visibility = View.GONE
+                        val data = state.data
+                        when {
+                            // Backend xác nhận đã thanh toán
+                            data.isPaid -> navigateToPaymentResult(
+                                isPaid = true, orderId = data.orderId, message = ""
+                            )
+                            // Backend chưa nhận IPN nhưng VNPay đã xác nhận thành công (ResponseCode=00)
+                            data.status == "Pending" && vnpResponseCode == "00" -> {
+                                Log.d(TAG, "Backend Pending but VNPay ResponseCode=00, treating as success")
+                                navigateToPaymentResult(
+                                    isPaid = true, orderId = data.orderId, message = ""
+                                )
+                            }
+                            // Thực sự thất bại
+                            else -> navigateToPaymentResult(
+                                isPaid = false, orderId = 0, message = data.message
+                            )
                         }
                     }
                     is UiState.Error -> {
                         binding.progressBar.visibility = View.GONE
-                        binding.tvStatus.text = state.message
-                        showToast(state.message)
-                        navigateToMain()
+                        // Không kết nối được backend — dùng ResponseCode của VNPay làm fallback
+                        val isPaid = vnpResponseCode == "00"
+                        navigateToPaymentResult(
+                            isPaid = isPaid,
+                            orderId = 0,
+                            message = if (isPaid) "" else state.message
+                        )
                     }
                     is UiState.Idle -> Unit
                 }
@@ -77,41 +103,18 @@ class PaymentCallbackActivity : BaseActivity<ActivityPaymentCallbackBinding>() {
         }
     }
 
-    private fun navigateToMainWithSuccess(orderId: Int) {
-        showToast("🎉 Thanh toán thành công! Đơn hàng #$orderId đang được xử lý.")
-        val intent = Intent(this, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-            putExtra(EXTRA_PAYMENT_SUCCESS, true)
-            putExtra(EXTRA_ORDER_ID, orderId)
-        }
-        startActivity(intent)
-        finish()
-    }
-
-    private fun navigateToMainWithFailure(message: String, canRetry: Boolean) {
-        val intent = Intent(this, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-            putExtra(EXTRA_PAYMENT_SUCCESS, false)
-            putExtra(EXTRA_PAYMENT_MESSAGE, message)
-            putExtra(EXTRA_CAN_RETRY, canRetry)
-        }
-        startActivity(intent)
-        finish()
-    }
-
-    private fun navigateToMain() {
-        val intent = Intent(this, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+    private fun navigateToPaymentResult(isPaid: Boolean, orderId: Int, message: String) {
+        val intent = Intent(this, PaymentResultActivity::class.java).apply {
+            putExtra(PaymentResultActivity.EXTRA_IS_PAID, isPaid)
+            putExtra(PaymentResultActivity.EXTRA_ORDER_ID, orderId)
+            putExtra(PaymentResultActivity.EXTRA_FAILURE_MESSAGE, message)
         }
         startActivity(intent)
         finish()
     }
 
     companion object {
-        const val EXTRA_PAYMENT_SUCCESS = "payment_success"
-        const val EXTRA_ORDER_ID = "order_id"
-        const val EXTRA_PAYMENT_MESSAGE = "payment_message"
-        const val EXTRA_CAN_RETRY = "can_retry"
+        private const val TAG = "PaymentCallbackActivity"
     }
 }
 

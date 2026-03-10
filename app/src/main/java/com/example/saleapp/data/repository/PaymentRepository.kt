@@ -35,11 +35,11 @@ class PaymentRepository @Inject constructor(
     }
 
     /**
-     * Get payment status from backend — source of truth after VNPay redirect.
+     * Forward VNPay callback params to backend for verification — source of truth after VNPay redirect.
      */
-    suspend fun getPaymentStatus(paymentId: Int): NetworkResult<PaymentStatusResponse> {
+    suspend fun verifyVnpayCallback(params: Map<String, String>): NetworkResult<PaymentStatusResponse> {
         return try {
-            val response = apiService.getPaymentStatus(paymentId)
+            val response = apiService.vnpayCallback(params)
             if (response.isSuccessful) {
                 val body = response.body()
                 if (body != null) {

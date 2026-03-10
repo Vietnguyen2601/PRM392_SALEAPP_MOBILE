@@ -89,34 +89,6 @@ class CheckoutActivity : BaseActivity<ActivityCheckoutBinding>() {
                 }
             }
         }
-
-        // Observe verification result (used after PaymentCallbackActivity deep link returns)
-        lifecycleScope.launch {
-            viewModel.paymentVerifyState.collectLatest { state ->
-                when (state) {
-                    is UiState.Loading -> {
-                        Log.d(TAG, "Verifying payment from backend...")
-                        binding.progressBar.visibility = View.VISIBLE
-                    }
-                    is UiState.Success -> {
-                        binding.progressBar.visibility = View.GONE
-                        if (state.data.isPaid) {
-                            showToast("✅ Thanh toán thành công!")
-                            navigateToMain(success = true, orderId = state.data.orderId)
-                        } else {
-                            showToast("❌ ${state.data.message}")
-                        }
-                    }
-                    is UiState.Error -> {
-                        binding.progressBar.visibility = View.GONE
-                        showToast("Lỗi xác nhận: ${state.message}")
-                    }
-                    is UiState.Idle -> {
-                        binding.progressBar.visibility = View.GONE
-                    }
-                }
-            }
-        }
     }
 
     private fun isNetworkAvailable(): Boolean {

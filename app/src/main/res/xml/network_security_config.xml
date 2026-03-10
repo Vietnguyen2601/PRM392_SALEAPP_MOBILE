@@ -10,6 +10,8 @@
         <domain includeSubdomains="true">localhost</domain>
         <domain includeSubdomains="true">192.168.1.0</domain>
         <domain includeSubdomains="true">192.168.0.0</domain>
+        <!-- VNPay SDK MobileSDK ReturnUrl — SDK WebView cần intercept URL này -->
+        <domain includeSubdomains="true">success.sdk.merchantbackapp</domain>
     </domain-config>
 </network-security-config>
 

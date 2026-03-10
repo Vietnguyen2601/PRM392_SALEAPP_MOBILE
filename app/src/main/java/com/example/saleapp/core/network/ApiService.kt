@@ -81,9 +81,9 @@ interface ApiService {
         @Body request: CreatePaymentRequest
     ): Response<CreatePaymentResponse>
 
-    @GET("mobile/payments/{paymentId}/status")
-    suspend fun getPaymentStatus(
-        @Path("paymentId") paymentId: Int
+    @GET("Payment/vnpay/callback")
+    suspend fun vnpayCallback(
+        @QueryMap params: Map<String, String>
     ): Response<PaymentStatusResponse>
 }
 

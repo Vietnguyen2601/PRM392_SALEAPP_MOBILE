@@ -93,6 +93,14 @@
             </intent-filter>
         </activity>
 
+        <!-- VNPay SDK Payment Result Activity -->
+        <!-- Hiển thị kết quả sau khi VNPay SDK hoàn tất (sau bước OTP) -->
+        <activity
+            android:name=".ui.payment.PaymentResultActivity"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:theme="@style/Theme.SaleApp" />
+
     </application>
 
 </manifest>

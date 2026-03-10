@@ -5,7 +5,6 @@ import com.example.saleapp.core.base.BaseViewModel
 import com.example.saleapp.core.network.NetworkResult
 import com.example.saleapp.core.utils.PreferenceManager
 import com.example.saleapp.core.utils.UiState
-import com.example.saleapp.data.model.response.PaymentStatusResponse
 import com.example.saleapp.data.repository.OrderRepository
 import com.example.saleapp.data.repository.PaymentRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,9 +22,6 @@ class CheckoutViewModel @Inject constructor(
 
     private val _paymentUrlState = MutableStateFlow<UiState<String>>(UiState.Idle)
     val paymentUrlState: StateFlow<UiState<String>> = _paymentUrlState
-
-    private val _paymentVerifyState = MutableStateFlow<UiState<PaymentStatusResponse>>(UiState.Idle)
-    val paymentVerifyState: StateFlow<UiState<PaymentStatusResponse>> = _paymentVerifyState
 
     /**
      * Full checkout flow:
@@ -74,39 +70,6 @@ class CheckoutViewModel @Inject constructor(
                 _paymentUrlState.value = UiState.Error(
                     result.e.message ?: "Lỗi kết nối"
                 )
-            }
-        }
-    }
-
-    /**
-     * Step 2: Verify payment result from backend after SDK callback.
-     * Never trust SDK result — always verify from server.
-     */
-    fun verifyPayment() {
-        viewModelScope.launch(exceptionHandler) {
-            _paymentVerifyState.value = UiState.Loading
-
-            val paymentId = preferenceManager.getCurrentPaymentId()
-            if (paymentId == 0) {
-                _paymentVerifyState.value = UiState.Error("Không tìm thấy thông tin thanh toán")
-                return@launch
-            }
-
-            when (val result = paymentRepository.getPaymentStatus(paymentId)) {
-                is NetworkResult.Success -> {
-                    preferenceManager.clearCurrentPaymentId()
-                    _paymentVerifyState.value = UiState.Success(result.data)
-                }
-                is NetworkResult.Error -> {
-                    _paymentVerifyState.value = UiState.Error(
-                        result.message ?: "Lỗi xác nhận thanh toán", result.code
-                    )
-                }
-                is NetworkResult.Exception -> {
-                    _paymentVerifyState.value = UiState.Error(
-                        result.e.message ?: "Lỗi kết nối"
-                    )
-                }
             }
         }
     }

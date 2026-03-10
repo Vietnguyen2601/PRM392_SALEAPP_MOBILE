@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="96dp"
+    android:height="96dp"
+    android:viewportWidth="96"
+    android:viewportHeight="96">
+
+    <!-- Orange circle background -->
+    <path
+        android:fillColor="#FFFF9800"
+        android:pathData="M48,4C23.7,4 4,23.7 4,48s19.7,44 44,44 44,-19.7 44,-44S72.3,4 48,4z" />
+
+    <!-- White ! (exclamation mark) -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M44,56L52,56L52,24L44,24zM44,72L52,72L52,64L44,64z" />
+</vector>
