@@ -127,8 +127,10 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:text="💳 VNPay"
-                        android:textAppearance="?attr/textAppearanceBodyLarge" />
+                        android:text="💳  VNPay"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="?attr/colorPrimary" />
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
