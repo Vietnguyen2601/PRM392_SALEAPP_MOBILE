@@ -7,6 +7,7 @@ import androidx.lifecycle.lifecycleScope
 import com.example.saleapp.core.base.BaseActivity
 import com.example.saleapp.core.utils.UiState
 import com.example.saleapp.databinding.ActivityLoginBinding
+import com.example.saleapp.ui.admin.AdminActivity
 import com.example.saleapp.ui.main.MainActivity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -39,7 +40,8 @@ class LoginActivity : BaseActivity<ActivityLoginBinding>() {
                     is UiState.Loading -> showLoading(true)
                     is UiState.Success -> {
                         showLoading(false)
-                        navigateToMain()
+                        val isAdmin = state.data.role?.equals("Admin", ignoreCase = true) == true
+                        navigateToMain(isAdmin)
                     }
                     is UiState.Error -> {
                         showLoading(false)
@@ -59,8 +61,9 @@ class LoginActivity : BaseActivity<ActivityLoginBinding>() {
         binding.btnLogin.isEnabled = !show
     }
 
-    private fun navigateToMain() {
-        startActivity(Intent(this, MainActivity::class.java))
+    private fun navigateToMain(isAdmin: Boolean = false) {
+        val destination = if (isAdmin) AdminActivity::class.java else MainActivity::class.java
+        startActivity(Intent(this, destination))
         finishAffinity()
     }
 }

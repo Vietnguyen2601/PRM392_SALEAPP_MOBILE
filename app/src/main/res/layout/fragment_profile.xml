@@ -66,6 +66,7 @@
 
             <!-- ====== Order history section ====== -->
             <TextView
+                android:id="@+id/tv_order_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="16dp"

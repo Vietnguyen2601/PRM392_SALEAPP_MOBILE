@@ -7,6 +7,7 @@ object Constants {
     const val KEY_USER_ID = "user_id"
     const val KEY_USER_EMAIL = "user_email"
     const val KEY_IS_LOGGED_IN = "is_logged_in"
+    const val KEY_USER_ROLE = "user_role"
 
     // API Request Keys
     const val HEADER_AUTHORIZATION = "Authorization"

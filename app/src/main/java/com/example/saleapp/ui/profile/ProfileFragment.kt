@@ -33,9 +33,6 @@ class ProfileFragment : BaseFragment<FragmentProfileBinding>() {
     private var totalPages = 1
 
     override fun setupViews() {
-        viewModel.loadProfile()
-        viewModel.loadOrders(page = 1)
-
         // RecyclerView
         binding.rvOrders.apply {
             layoutManager = LinearLayoutManager(requireContext())
@@ -43,10 +40,24 @@ class ProfileFragment : BaseFragment<FragmentProfileBinding>() {
             isNestedScrollingEnabled = false
         }
 
-        binding.btnLogout.setOnClickListener { showLogoutConfirmDialog() }
-
         binding.btnPrevPage.setOnClickListener { viewModel.prevPage() }
         binding.btnNextPage.setOnClickListener { viewModel.nextPage(totalPages) }
+
+        if (viewModel.isLoggedIn()) {
+            viewModel.loadProfile()
+            viewModel.loadOrders(page = 1)
+            binding.btnLogout.text = "Logout"
+            binding.btnLogout.setOnClickListener { showLogoutConfirmDialog() }
+        } else {
+            binding.tvName.text = "Khách"
+            binding.tvEmail.text = "Chưa đăng nhập"
+            binding.tvOrderTitle.gone()
+            binding.rvOrders.gone()
+            binding.tvEmptyOrders.gone()
+            binding.layoutPaging.gone()
+            binding.btnLogout.text = "Login"
+            binding.btnLogout.setOnClickListener { navigateToLogin() }
+        }
     }
 
     override fun observeData() {
@@ -61,8 +72,10 @@ class ProfileFragment : BaseFragment<FragmentProfileBinding>() {
                             binding.tvName.text = state.data.username
                             binding.tvEmail.text = state.data.email
                         }
+                        else -> showLoading(false)
                     }
                 }
+            }
 
             // Orders
             launch {
@@ -155,5 +168,6 @@ class ProfileFragment : BaseFragment<FragmentProfileBinding>() {
         requireActivity().finish()
     }
 }
+
 
 

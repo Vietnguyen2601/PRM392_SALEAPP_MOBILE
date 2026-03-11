@@ -28,6 +28,7 @@ class AuthRepository @Inject constructor(
                     preferenceManager.saveUserId(user.userId.toString())
                     preferenceManager.saveUserEmail(user.email)
                     preferenceManager.setLoggedIn(true)
+                    user.role?.let { preferenceManager.saveUserRole(it) }
                     NetworkResult.Success(user)
                 } else {
                     NetworkResult.Error(response.code(), body?.message ?: "Login failed")

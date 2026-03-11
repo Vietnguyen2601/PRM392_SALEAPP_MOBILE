@@ -139,5 +139,19 @@ class ChatRepository @Inject constructor(
     fun setShopTypingListener(listener: (Int) -> Unit) {
         chatHubManager.onShopTyping = listener
     }
+
+    fun setUserTypingListener(listener: (conversationId: Int, userId: Int) -> Unit) {
+        chatHubManager.onUserTyping = listener
+    }
+
+    suspend fun closeConversation(conversationId: Int): NetworkResult<Unit> = withContext(Dispatchers.IO) {
+        try {
+            val response = chatApiService.closeConversation(conversationId)
+            if (response.isSuccessful) NetworkResult.Success(Unit)
+            else NetworkResult.Error(response.code(), "Failed to close conversation")
+        } catch (e: Exception) {
+            NetworkResult.Exception(e)
+        }
+    }
 }
 

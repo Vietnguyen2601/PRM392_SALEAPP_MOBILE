@@ -52,6 +52,12 @@
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
 
+        <!-- Admin Activity -->
+        <activity
+            android:name=".ui.admin.AdminActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
         <!-- Auth Activities -->
         <activity
             android:name=".ui.auth.login.LoginActivity"

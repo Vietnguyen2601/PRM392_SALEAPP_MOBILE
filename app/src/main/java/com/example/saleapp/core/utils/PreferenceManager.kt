@@ -29,6 +29,7 @@ class PreferenceManager @Inject constructor(
         val KEY_USER_ID = stringPreferencesKey(Constants.KEY_USER_ID)
         val KEY_USER_EMAIL = stringPreferencesKey(Constants.KEY_USER_EMAIL)
         val KEY_IS_LOGGED_IN = booleanPreferencesKey(Constants.KEY_IS_LOGGED_IN)
+        val KEY_USER_ROLE = stringPreferencesKey(Constants.KEY_USER_ROLE)
         val KEY_CURRENT_PAYMENT_ID = intPreferencesKey("current_payment_id")
     }
 
@@ -62,6 +63,14 @@ class PreferenceManager @Inject constructor(
 
     suspend fun setLoggedIn(loggedIn: Boolean) {
         dataStore.edit { it[KEY_IS_LOGGED_IN] = loggedIn }
+    }
+
+    fun getUserRole(): String? = runBlocking {
+        dataStore.data.map { it[KEY_USER_ROLE] }.first()
+    }
+
+    suspend fun saveUserRole(role: String) {
+        dataStore.edit { it[KEY_USER_ROLE] = role }
     }
 
     suspend fun saveCurrentPaymentId(paymentId: Int) {

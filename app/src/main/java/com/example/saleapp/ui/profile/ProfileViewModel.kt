@@ -6,6 +6,7 @@ import com.example.saleapp.core.network.NetworkResult
 import com.example.saleapp.core.utils.UiState
 import com.example.saleapp.data.model.response.PagedOrderResponse
 import com.example.saleapp.data.model.response.UserResponse
+import com.example.saleapp.core.utils.PreferenceManager
 import com.example.saleapp.data.repository.AuthRepository
 import com.example.saleapp.data.repository.OrderRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -17,8 +18,11 @@ import javax.inject.Inject
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     private val authRepository: AuthRepository,
-    private val orderRepository: OrderRepository
+    private val orderRepository: OrderRepository,
+    private val preferenceManager: PreferenceManager
 ) : BaseViewModel() {
+
+    fun isLoggedIn(): Boolean = preferenceManager.isLoggedIn()
 
     private val _profileState = MutableStateFlow<UiState<UserResponse>>(UiState.Idle)
     val profileState: StateFlow<UiState<UserResponse>> = _profileState
