@@ -39,6 +39,8 @@ class ChatViewModel @Inject constructor(
     private val _sendMessageState = MutableStateFlow<UiState<Unit>>(UiState.Idle)
     val sendMessageState: StateFlow<UiState<Unit>> = _sendMessageState
 
+    private var tempMessageId = -1
+
     init {
         setupRealtimeListeners()
     }
@@ -46,9 +48,10 @@ class ChatViewModel @Inject constructor(
     private fun setupRealtimeListeners() {
         chatRepository.setMessageReceivedListener { message ->
             _newMessage.value = message
-            // Add to messages list (this is for messages from shop/admin)
+            // Skip "User" messages — those are the user's own messages, already handled
+            // by the optimistic update + MessageSent listener to avoid duplication.
+            if (message.senderType == "User") return@setMessageReceivedListener
             val currentMessages = _messages.value.toMutableList()
-            // Check if message already exists before adding
             val existingIndex = currentMessages.indexOfFirst { it.chatMessageId == message.chatMessageId }
             if (existingIndex == -1) {
                 currentMessages.add(message)
@@ -168,7 +171,7 @@ class ChatViewModel @Inject constructor(
                     // Use SignalR for real-time sending
                     // Optimistically add message to UI immediately with unique negative ID
                     val tempMessage = ChatMessageDto(
-                        chatMessageId = -(System.currentTimeMillis().toInt()), // Unique negative ID
+                        chatMessageId = tempMessageId--,
                         conversationId = conversationId,
                         senderType = "User",
                         message = message,

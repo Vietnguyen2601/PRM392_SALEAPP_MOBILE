@@ -61,8 +61,10 @@ class ProfileFragment : BaseFragment<FragmentProfileBinding>() {
                             binding.tvName.text = state.data.username
                             binding.tvEmail.text = state.data.email
                         }
+                        else -> Unit
                     }
                 }
+            }
 
             // Orders
             launch {
