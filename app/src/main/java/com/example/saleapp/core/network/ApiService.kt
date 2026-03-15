@@ -16,6 +16,8 @@ import com.example.saleapp.data.model.response.PaymentStatusResponse
 import com.example.saleapp.data.model.response.ProductResponse
 import com.example.saleapp.data.model.response.RegisterResponse
 import com.example.saleapp.data.model.response.UserResponse
+import com.example.saleapp.data.model.response.ApiResponse
+import com.example.saleapp.data.model.StoreDto
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -93,5 +95,19 @@ interface ApiService {
     suspend fun vnpayCallback(
         @QueryMap params: Map<String, String>
     ): Response<PaymentStatusResponse>
+
+    // Stores (Map Feature)
+    @GET("Stores")
+    suspend fun getStores(): Response<ApiResponse<List<StoreDto>>>
+
+    @GET("Stores/{id}")
+    suspend fun getStoreDetail(@Path("id") id: Int): Response<ApiResponse<StoreDto>>
+
+    @GET("Stores/search/nearby")
+    suspend fun searchNearbyStores(
+        @Query("latitude") latitude: Double,
+        @Query("longitude") longitude: Double,
+        @Query("radius") radius: Int = 5
+    ): Response<ApiResponse<List<StoreDto>>>
 }
 

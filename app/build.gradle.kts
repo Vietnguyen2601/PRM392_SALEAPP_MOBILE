@@ -79,6 +79,11 @@ dependencies {
     implementation(libs.gson)
 
     implementation(libs.coil)
+    implementation("com.github.bumptech.glide:glide:4.15.1")
+    kapt("com.github.bumptech.glide:compiler:4.15.1")
+
+    // OpenStreetMap (osmdroid)
+    implementation("org.osmdroid:osmdroid-android:6.1.20")
 
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)

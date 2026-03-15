@@ -14,6 +14,9 @@
         <action
             android:id="@+id/action_homeFragment_to_chatFragment"
             app:destination="@id/chatFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_storeMapFragment"
+            app:destination="@id/storeMapFragment" />
     </fragment>
 
     <fragment
@@ -39,6 +42,11 @@
         android:id="@+id/chatFragment"
         android:name="com.example.saleapp.ui.chat.ChatFragment"
         android:label="Chat" />
+
+    <fragment
+        android:id="@+id/storeMapFragment"
+        android:name="com.example.saleapp.ui.store.StoreMapFragment"
+        android:label="Store Locator" />
 
 </navigation>
 

@@ -103,7 +103,7 @@ class PaymentCallbackActivity : BaseActivity<ActivityPaymentCallbackBinding>() {
         }
     }
 
-    private fun navigateToPaymentResult(isPaid: Boolean, orderId: Int, message: String) {
+    private fun navigateToPaymentResult(isPaid: Boolean, orderId: Int, message: String?) {
         val intent = Intent(this, PaymentResultActivity::class.java).apply {
             putExtra(PaymentResultActivity.EXTRA_IS_PAID, isPaid)
             putExtra(PaymentResultActivity.EXTRA_ORDER_ID, orderId)

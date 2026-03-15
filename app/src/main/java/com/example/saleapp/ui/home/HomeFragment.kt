@@ -32,6 +32,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
         setupRecyclerView()
         setupSearch()
         setupFilterButton()
+        setupStoreLocatorButton()
         viewModel.loadProducts()
     }
 
@@ -67,6 +68,12 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
                 viewModel.applyFilter(newFilter)
             }
             sheet.show(childFragmentManager, "FilterBottomSheet")
+        }
+    }
+
+    private fun setupStoreLocatorButton() {
+        binding.btnStoreLocator.setOnClickListener {
+            findNavController().navigate(HomeFragmentDirections.actionHomeFragmentToStoreMapFragment())
         }
     }
 

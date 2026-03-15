@@ -9,11 +9,11 @@ import java.text.NumberFormat
 import java.util.Locale
 
 // Toast Extensions
-fun Context.showToast(message: String, duration: Int = Toast.LENGTH_SHORT) {
+fun Context.showToast(message: String?, duration: Int = Toast.LENGTH_SHORT) {
     Toast.makeText(this, message, duration).show()
 }
 
-fun Fragment.showToast(message: String, duration: Int = Toast.LENGTH_SHORT) {
+fun Fragment.showToast(message: String?, duration: Int = Toast.LENGTH_SHORT) {
     requireContext().showToast(message, duration)
 }
 

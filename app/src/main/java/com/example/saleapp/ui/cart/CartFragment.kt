@@ -15,6 +15,7 @@ import com.example.saleapp.core.utils.showToast
 import com.example.saleapp.data.model.response.CartResponse
 import com.example.saleapp.databinding.FragmentCartBinding
 import com.example.saleapp.ui.checkout.CheckoutActivity
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -65,8 +66,8 @@ class CartFragment : BaseFragment<FragmentCartBinding>() {
                             }
                             is UiState.Error -> {
                                 showLoading(false)
-                                showToast(state.message)
-                                showEmptyState(true)
+                                state.message?.let { Snackbar.make(binding.root, it, Snackbar.LENGTH_SHORT) }
+                                    ?.show()
                             }
                             else -> showLoading(false)
                         }

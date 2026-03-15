@@ -8,6 +8,7 @@ import com.example.saleapp.core.base.BaseActivity
 import com.example.saleapp.core.utils.UiState
 import com.example.saleapp.databinding.ActivityLoginBinding
 import com.example.saleapp.ui.main.MainActivity
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -44,9 +45,8 @@ class LoginActivity : BaseActivity<ActivityLoginBinding>() {
                     is UiState.Error -> {
                         showLoading(false)
                         binding.root.let {
-                            com.google.android.material.snackbar.Snackbar
-                                .make(it, state.message, com.google.android.material.snackbar.Snackbar.LENGTH_SHORT)
-                                .show()
+                            state.message?.let { it1 -> Snackbar.make(it, it1, Snackbar.LENGTH_SHORT) }
+                                ?.show()
                         }
                     }
                     else -> showLoading(false)

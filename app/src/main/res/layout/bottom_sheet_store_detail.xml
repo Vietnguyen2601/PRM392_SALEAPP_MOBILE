@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Store ID/Name -->
+    <TextView
+        android:id="@+id/storeName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="@android:color/black"
+        tools:text="Chi nhánh 1" />
+
+    <!-- Address -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/ic_location"
+            android:tint="@android:color/darker_gray" />
+
+        <TextView
+            android:id="@+id/storeAddress"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            android:textSize="14sp"
+            android:textColor="@android:color/darker_gray"
+            tools:text="123 Đường Lê Lợi, Quận Hoàn Kiếm, Hà Nội" />
+
+    </LinearLayout>
+
+    <!-- Hidden Views - Keep for binding compatibility -->
+    <ImageView
+        android:id="@+id/storeImage"
+        android:visibility="gone"
+        android:layout_width="0dp"
+        android:layout_height="0dp" />
+
+    <TextView
+        android:id="@+id/storePhone"
+        android:visibility="gone"
+        android:layout_width="0dp"
+        android:layout_height="0dp" />
+
+    <TextView
+        android:id="@+id/storeEmail"
+        android:visibility="gone"
+        android:layout_width="0dp"
+        android:layout_height="0dp" />
+
+    <RatingBar
+        android:id="@+id/ratingBar"
+        android:visibility="gone"
+        android:layout_width="0dp"
+        android:layout_height="0dp" />
+
+    <TextView
+        android:id="@+id/storeRating"
+        android:visibility="gone"
+        android:layout_width="0dp"
+        android:layout_height="0dp" />
+
+    <TextView
+        android:id="@+id/storeHours"
+        android:visibility="gone"
+        android:layout_width="0dp"
+        android:layout_height="0dp" />
+
+    <TextView
+        android:id="@+id/storeDescription"
+        android:visibility="gone"
+        android:layout_width="0dp"
+        android:layout_height="0dp" />
+
+    <LinearLayout
+        android:id="@+id/ratingContainer"
+        android:visibility="gone"
+        android:layout_width="0dp"
+        android:layout_height="0dp" />
+
+    <LinearLayout
+        android:id="@+id/hoursContainer"
+        android:visibility="gone"
+        android:layout_width="0dp"
+        android:layout_height="0dp" />
+
+    <LinearLayout
+        android:id="@+id/descriptionContainer"
+        android:visibility="gone"
+        android:layout_width="0dp"
+        android:layout_height="0dp" />
+
+    <!-- Action Button -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/callButton"
+            android:visibility="gone"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Gọi" />
+
+        <Button
+            android:id="@+id/emailButton"
+            android:visibility="gone"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Email" />
+
+        <Button
+            android:id="@+id/locationButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Xem trên bản đồ"
+            android:icon="@drawable/ic_location" />
+
+    </LinearLayout>
+
+</LinearLayout>
+

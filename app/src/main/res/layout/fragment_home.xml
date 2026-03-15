@@ -69,6 +69,21 @@
                 android:backgroundTint="@color/purple_500"
                 android:text="" />
 
+            <!-- Store Locator Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_store_locator"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginStart="8dp"
+                app:icon="@drawable/ic_location"
+                app:iconSize="22dp"
+                app:iconGravity="textStart"
+                android:paddingStart="10dp"
+                app:cornerRadius="24dp"
+                android:backgroundTint="@color/purple_500"
+                android:text=""
+                android:contentDescription="Store Locator" />
+
         </LinearLayout>
 
         <!-- Active Filter Chips (visible when filters active) -->
