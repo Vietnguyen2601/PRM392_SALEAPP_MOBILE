@@ -8,6 +8,7 @@ data class UserResponse(
     @SerializedName("email") val email: String,
     @SerializedName("phoneNumber") val phoneNumber: String?,
     @SerializedName("address") val address: String?,
-    @SerializedName("isActive") val isActive: Boolean
+    @SerializedName("isActive") val isActive: Boolean,
+    @SerializedName("role") val role: String? = null
 )
 

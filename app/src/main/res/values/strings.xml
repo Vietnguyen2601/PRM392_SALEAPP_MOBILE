@@ -12,4 +12,11 @@
     <string name="chat_no_messages">No messages yet</string>
     <string name="chat_start_conversation">Start a conversation with the shop</string>
     <string name="chat_send_failed">Failed to send message: %1$s</string>
+
+    <!-- Admin Chat -->
+    <string name="admin_chat_title">Admin Chat</string>
+    <string name="admin_chat_select_conversation">Select a conversation</string>
+    <string name="admin_conversations_header">Conversations</string>
+    <string name="admin_empty_state">Select a conversation to start</string>
+    <string name="admin_reply_hint">Type a reply</string>
 </resources>

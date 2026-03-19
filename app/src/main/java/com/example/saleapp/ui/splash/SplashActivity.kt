@@ -6,6 +6,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.saleapp.core.utils.PreferenceManager
+import com.example.saleapp.ui.admin.AdminChatActivity
 import com.example.saleapp.ui.auth.login.LoginActivity
 import com.example.saleapp.ui.main.MainActivity
 import dagger.hilt.android.AndroidEntryPoint
@@ -31,7 +32,9 @@ class SplashActivity : AppCompatActivity() {
 
     private fun navigateToNext() {
         val destination = if (preferenceManager.isLoggedIn()) {
-            Intent(this, MainActivity::class.java)
+            val role = preferenceManager.getUserRole()
+            val isAdmin = role.equals("Admin", ignoreCase = true) || role.equals("Seller", ignoreCase = true)
+            if (isAdmin) Intent(this, AdminChatActivity::class.java) else Intent(this, MainActivity::class.java)
         } else {
             Intent(this, LoginActivity::class.java)
         }

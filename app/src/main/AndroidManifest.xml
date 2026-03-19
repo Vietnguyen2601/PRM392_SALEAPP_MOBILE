@@ -53,6 +53,12 @@
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
 
+        <!-- Admin Chat Activity -->
+        <activity
+            android:name=".ui.admin.AdminChatActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
         <!-- Auth Activities -->
         <activity
             android:name=".ui.auth.login.LoginActivity"

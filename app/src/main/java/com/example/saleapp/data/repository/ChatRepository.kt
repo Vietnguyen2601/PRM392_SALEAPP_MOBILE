@@ -139,5 +139,9 @@ class ChatRepository @Inject constructor(
     fun setShopTypingListener(listener: (Int) -> Unit) {
         chatHubManager.onShopTyping = listener
     }
+
+    fun setUserTypingListener(listener: (Int, Int) -> Unit) {
+        chatHubManager.onUserTyping = listener
+    }
 }
 

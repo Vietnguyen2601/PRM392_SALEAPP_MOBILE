@@ -11,7 +11,9 @@ import com.example.saleapp.databinding.ItemChatMessageSentBinding
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-class ChatMessageAdapter : ListAdapter<ChatMessageDto, RecyclerView.ViewHolder>(MessageDiffCallback()) {
+class ChatMessageAdapter(
+    private val selfSenderType: String = "User"
+) : ListAdapter<ChatMessageDto, RecyclerView.ViewHolder>(MessageDiffCallback()) {
 
     companion object {
         private const val VIEW_TYPE_SENT = 1
@@ -31,7 +33,7 @@ class ChatMessageAdapter : ListAdapter<ChatMessageDto, RecyclerView.ViewHolder>(
 
     override fun getItemViewType(position: Int): Int {
         val message = getItem(position)
-        return if (message.senderType == "User") VIEW_TYPE_SENT else VIEW_TYPE_RECEIVED
+        return if (message.senderType.equals(selfSenderType, ignoreCase = true)) VIEW_TYPE_SENT else VIEW_TYPE_RECEIVED
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {

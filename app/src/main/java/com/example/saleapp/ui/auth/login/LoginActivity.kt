@@ -5,12 +5,15 @@ import android.view.LayoutInflater
 import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.example.saleapp.core.base.BaseActivity
+import com.example.saleapp.core.utils.PreferenceManager
 import com.example.saleapp.core.utils.UiState
 import com.example.saleapp.databinding.ActivityLoginBinding
+import com.example.saleapp.ui.admin.AdminChatActivity
 import com.example.saleapp.ui.main.MainActivity
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class LoginActivity : BaseActivity<ActivityLoginBinding>() {
@@ -19,6 +22,9 @@ class LoginActivity : BaseActivity<ActivityLoginBinding>() {
         ActivityLoginBinding::inflate
 
     private val viewModel: LoginViewModel by viewModels()
+
+    @Inject
+    lateinit var preferenceManager: PreferenceManager
 
     override fun setupViews() {
         binding.btnLogin.setOnClickListener {
@@ -40,7 +46,7 @@ class LoginActivity : BaseActivity<ActivityLoginBinding>() {
                     is UiState.Loading -> showLoading(true)
                     is UiState.Success -> {
                         showLoading(false)
-                        navigateToMain()
+                        navigateAfterLogin(state.data.role)
                     }
                     is UiState.Error -> {
                         showLoading(false)
@@ -59,8 +65,15 @@ class LoginActivity : BaseActivity<ActivityLoginBinding>() {
         binding.btnLogin.isEnabled = !show
     }
 
-    private fun navigateToMain() {
-        startActivity(Intent(this, MainActivity::class.java))
+    private fun navigateAfterLogin(role: String?) {
+        val resolvedRole = role ?: preferenceManager.getUserRole()
+        val isAdmin = resolvedRole.equals("Admin", ignoreCase = true) || resolvedRole.equals("Seller", ignoreCase = true)
+        val destination = if (isAdmin) {
+            Intent(this, AdminChatActivity::class.java)
+        } else {
+            Intent(this, MainActivity::class.java)
+        }
+        startActivity(destination)
         finishAffinity()
     }
 }
